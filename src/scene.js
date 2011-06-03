@@ -96,8 +96,8 @@ scene.Material.prototype = extend({}, scene.Node.prototype, {
         }
         scene.pushShader(this.shader);
         this.shader.use();
-        this.shader.uniforms(scene.uniforms);
-        this.shader.uniforms(this.uniforms);
+        scene.pushUniforms();
+        extend(scene.uniforms, this.uniforms);
     },
     exit: function(scene) {
         for(var uniform in this.uniforms){
@@ -106,6 +106,7 @@ scene.Material.prototype = extend({}, scene.Node.prototype, {
             }
         }
         scene.popShader();
+        scene.popUniforms();
     }
 });
 
@@ -167,6 +168,22 @@ scene.Camera.prototype = extend({}, scene.Node.prototype, {
     }
 });
 
+scene.Transform = function Transform(children){
+    this.children = children || [];
+    this.matrix = mat4.create();
+    mat4.identity(this.matrix);
+    this.aux = mat4.create();
+}
+scene.Transform.prototype = extend({}, scene.Node, {
+    enter: function(scene) {
+        mat4.multiply(scene.uniforms.worldView.value, this.matrix, this.aux);
+        scene.pushUniforms();
+        scene.uniforms.worldView = new uniform.Mat4(this.aux);
+    },
+    exit: function(scene) {
+        scene.popUniforms();
+    }
+});
 
 scene.SimpleMesh = function SimpleMesh(vbo){
     this.vbo = vbo;
@@ -182,6 +199,7 @@ scene.SimpleMesh.prototype = {
         gl.vertexAttribPointer(location, 3, gl.FLOAT, normalized, stride, offset);
 
         this.vbo.bind();
+        shader.uniforms(scene.uniforms);
         this.vbo.drawTriangles();
     }
 };

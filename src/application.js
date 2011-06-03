@@ -50,10 +50,13 @@ function prepareScene(){
         ])),
         mesh = new scene.SimpleMesh(vbo),
         shader = shaderManager.get('transform.vertex', 'color.frag'),
+        transform = new scene.Transform([mesh]),
         material = new scene.Material(shader, {
             color: new uniform.Vec3([1, 0, 0])
-        }, [mesh]),
+        }, [transform]),
         camera = new scene.Camera([material]);
+
+    mat4.translate(transform.matrix, [1, 0, 0]);
     sceneGraph.root.append(camera);
 
     controller = new MouseController(input, camera);
