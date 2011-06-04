@@ -51,6 +51,7 @@ scene.Graph = function SceneGraph(gl){
     this.shaders = [];
     this.viewportWidth = 640;
     this.viewportHeight = 480;
+    this.textureUnit = 0;
 }
 scene.Graph.prototype = {
     draw: function() {
@@ -90,8 +91,9 @@ scene.Material = function Material(shader, uniforms, children) {
 scene.Material.prototype = extend({}, scene.Node.prototype, {
     enter: function(scene){
         for(var uniform in this.uniforms){
-            if(uniform.bindTexture){
-                uniform.bindTexture(scene.pushTexture());
+            var value = this.uniforms[uniform];
+            if(value.bindTexture){
+                value.bindTexture(scene.pushTexture());
             }
         }
         scene.pushShader(this.shader);
@@ -101,7 +103,8 @@ scene.Material.prototype = extend({}, scene.Node.prototype, {
     },
     exit: function(scene) {
         for(var uniform in this.uniforms){
-            if(uniform.bindTexture){
+            var value = this.uniforms[uniform];
+            if(value.bindTexture){
                 scene.popTexture();
             }
         }
@@ -138,9 +141,13 @@ scene.Camera = function Camera(children){
 }
 scene.Camera.prototype = extend({}, scene.Node.prototype, {
     enter: function (scene) {
+        var projection = this.getProjection(scene),
+            worldView = this.getWorldView(),
+            wvp = mat4.create();
+
         scene.pushUniforms();
-        scene.uniforms['projection'] = new uniform.Mat4(this.getProjection(scene));
-        scene.uniforms['worldView'] = new uniform.Mat4(this.getWorldView());
+        mat4.multiply(projection, worldView, wvp);
+        scene.uniforms.worldViewProjection = new uniform.Mat4(wvp);
         //this.project([0, 0, 0, 1], scene);
     },
     project: function(point, scene) {
@@ -176,9 +183,14 @@ scene.Transform = function Transform(children){
 }
 scene.Transform.prototype = extend({}, scene.Node, {
     enter: function(scene) {
-        mat4.multiply(scene.uniforms.worldView.value, this.matrix, this.aux);
         scene.pushUniforms();
-        scene.uniforms.worldView = new uniform.Mat4(this.aux);
+        if(scene.uniforms.modelTransform){
+            mat4.multiply(scene.uniforms.modelTransform.value, this.matrix, this.aux);
+            scene.uniforms.modelTransform = new uniform.Mat4(this.aux);
+        }
+        else{
+            scene.uniforms.modelTransform = new uniform.Mat4(this.matrix);
+        }
     },
     exit: function(scene) {
         scene.popUniforms();

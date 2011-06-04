@@ -29,7 +29,7 @@ cameracontroller.MouseController.prototype = {
         else if(this.input.keys.D){
             direction[0] = 1;
         }
-        vec3.scale(vec3.normalize(direction), 0.05);
+        vec3.scale(vec3.normalize(direction), 1.00);
         mat4.multiplyVec3(inverseRotation, direction);
         vec3.add(this.camera.position, direction);
     }

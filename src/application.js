@@ -2,7 +2,9 @@ jQuery(function(){
 
 provides('main');
 
-var scene = requires('scene'),
+var GRID = 512,
+    scene = requires('scene'),
+    mesh = requires('mesh'),
     Loader = requires('loader').Loader,
     ShaderManager = requires('shader').Manager,
     glUtils = requires('glUtils'),
@@ -29,7 +31,9 @@ loader.onready = function() {
 }
 loader.load([
     'shaders/transform.vertex',
-    'shaders/color.frag'
+    'shaders/heightmap.vertex',
+    'shaders/color.frag',
+    'gfx/heightmap.png'
 ]);
 
 clock.ontick = function(td) {
@@ -43,20 +47,19 @@ var sceneGraph;
 function prepareScene(){
     sceneGraph = new scene.Graph();
 
-    var vbo = new glUtils.VBO(new Float32Array([
-            -1, 1, 1,
-            0, -1, 1,
-            1, 1, 1
-        ])),
-        mesh = new scene.SimpleMesh(vbo),
-        shader = shaderManager.get('transform.vertex', 'color.frag'),
-        transform = new scene.Transform([mesh]),
+    var vbo = new glUtils.VBO(mesh.grid(GRID)),
+        heightmapTexture = new glUtils.Texture2D(resources['gfx/heightmap.png']),
+        grid = new scene.SimpleMesh(vbo),
+        shader = shaderManager.get('heightmap.vertex', 'color.frag'),
+        transform = new scene.Transform([grid]),
         material = new scene.Material(shader, {
-            color: new uniform.Vec3([1, 0, 0])
+            color: new uniform.Vec3([1, 0, 0]),
+            heightmap: heightmapTexture
         }, [transform]),
         camera = new scene.Camera([material]);
 
-    mat4.translate(transform.matrix, [1, 0, 0]);
+    mat4.translate(transform.matrix, [-0.5*GRID, -80, -0.5*GRID]);
+    mat4.scale(transform.matrix, [GRID, 100, GRID]);
     sceneGraph.root.append(camera);
 
     controller = new MouseController(input, camera);
