@@ -7,41 +7,46 @@ scene.Node = function SceneNode(children){
 }
 scene.Node.prototype = {
     children: [],
-    visit: function(scene) {
-        this.enter(scene);
+    visit: function(graph) {
+        this.enter(graph);
         for(var i = 0; i < this.children.length; i++) {
             var child = this.children[i];
-            child.visit(scene);
+            child.visit(graph);
         }
-        this.exit(scene);
+        this.exit(graph);
     },
     append: function (child) {
         this.children.push(child);
     },
-    enter: function(scene) {
+    enter: function(graph) {
     },
-    exit: function(scene) {
+    exit: function(graph) {
     }
 };
 
-function uniformNode(names){
-    function UniformNode(){
-        this.uniforms = {};
-        for(var i = 0; i < names.length; i++) {
-            var name = names[i];
-            this.uniforms[name] = arguments[i];
-        }
-        this.children = this.arguments[i] || [];
-    }
-    UniformNode.prototype = Object.create(uniformNodeProto);
+scene.Uniforms = function UniformsNode(uniforms, children) {
+    this.uniforms = uniforms;
+    this.children = children;
 }
-var uniformNodeProto = extend({}, scene.Node.prototype, {
-    enter: function(scene) {
-        scene.pushUniforms();
-        extend(scene.uniforms, this.uniforms);
+scene.Uniforms.prototype = extend({}, scene.Node.prototype, {
+    enter: function(graph) {
+        for(var uniform in this.uniforms){
+            var value = this.uniforms[uniform];
+            if(value.bindTexture){
+                value.bindTexture(graph.pushTexture());
+            }
+        }
+        graph.pushUniforms();
+        extend(graph.uniforms, this.uniforms);
     },
-    exit: function(scene) {
-        scene.popUniforms();
+    exit: function(graph) {
+        for(var uniform in this.uniforms){
+            var value = this.uniforms[uniform];
+            if(value.bindTexture){
+                graph.popTexture();
+            }
+        }
+        graph.popUniforms();
     }
 });
 
@@ -89,27 +94,14 @@ scene.Material = function Material(shader, uniforms, children) {
     this.children = children;
 }
 scene.Material.prototype = extend({}, scene.Node.prototype, {
-    enter: function(scene){
-        for(var uniform in this.uniforms){
-            var value = this.uniforms[uniform];
-            if(value.bindTexture){
-                value.bindTexture(scene.pushTexture());
-            }
-        }
-        scene.pushShader(this.shader);
+    enter: function(graph){
+        graph.pushShader(this.shader);
         this.shader.use();
-        scene.pushUniforms();
-        extend(scene.uniforms, this.uniforms);
+        scene.Uniforms.prototype.enter.call(this, graph);
     },
-    exit: function(scene) {
-        for(var uniform in this.uniforms){
-            var value = this.uniforms[uniform];
-            if(value.bindTexture){
-                scene.popTexture();
-            }
-        }
-        scene.popShader();
-        scene.popUniforms();
+    exit: function(graph) {
+        scene.Uniforms.prototype.exit.call(this, graph);
+        graph.popShader();
     }
 });
 
@@ -118,14 +110,14 @@ scene.RenderTarget = function RenderTarget(fbo, children){
     this.children = children;
 }
 scene.RenderTarget.prototype = extend({}, scene.Node.prototype, {
-    enter: function(scene) {
+    enter: function(graph) {
         this.fbo.bind();
-        scene.gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        scene.gl.viewport(0, 0, this.fbo.width, this.fbo.height);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.viewport(0, 0, this.fbo.width, this.fbo.height);
     },
-    exit: function(scene) {
+    exit: function(graph) {
         this.fbo.unbind();
-        gl.viewport(0, 0, scene.viewportWidth, scene.viewportHeight);
+        gl.viewport(0, 0, graph.viewportWidth, graph.viewportHeight);
     }
 });
 
@@ -140,31 +132,31 @@ scene.Camera = function Camera(children){
     this.children = children;
 }
 scene.Camera.prototype = extend({}, scene.Node.prototype, {
-    enter: function (scene) {
-        var projection = this.getProjection(scene),
+    enter: function (graph) {
+        var projection = this.getProjection(graph),
             worldView = this.getWorldView(),
             wvp = mat4.create();
 
-        scene.pushUniforms();
+        graph.pushUniforms();
         mat4.multiply(projection, worldView, wvp);
-        scene.uniforms.worldViewProjection = new uniform.Mat4(wvp);
+        graph.uniforms.worldViewProjection = new uniform.Mat4(wvp);
         //this.project([0, 0, 0, 1], scene);
     },
-    project: function(point, scene) {
+    project: function(point, graph) {
         var mvp = mat4.create();
-        mat4.multiply(this.getProjection(scene), this.getWorldView(), mvp);
+        mat4.multiply(this.getProjection(graph), this.getWorldView(), mvp);
         var projected = mat4.multiplyVec4(mvp, point, vec4.create());
         vec4.scale(projected, 1/projected[3]);
         return projected;
     },
-    exit: function(scene) {
-        scene.popUniforms();
+    exit: function(graph) {
+        graph.popUniforms();
     },
     getInverseRotation: function () {
         return mat3.toMat4(mat4.toInverseMat3(this.getWorldView()));
     },
-    getProjection: function (scene) {
-        return mat4.perspective(this.fov, scene.viewportWidth/scene.viewportHeight, this.near, this.far);
+    getProjection: function (graph) {
+        return mat4.perspective(this.fov, graph.viewportWidth/graph.viewportHeight, this.near, this.far);
     },
     getWorldView: function(){
         var matrix = mat4.identity(mat4.create());
@@ -182,18 +174,18 @@ scene.Transform = function Transform(children){
     this.aux = mat4.create();
 }
 scene.Transform.prototype = extend({}, scene.Node, {
-    enter: function(scene) {
-        scene.pushUniforms();
-        if(scene.uniforms.modelTransform){
-            mat4.multiply(scene.uniforms.modelTransform.value, this.matrix, this.aux);
-            scene.uniforms.modelTransform = new uniform.Mat4(this.aux);
+    enter: function(graph) {
+        graph.pushUniforms();
+        if(graph.uniforms.modelTransform){
+            mat4.multiply(graph.uniforms.modelTransform.value, this.matrix, this.aux);
+            graph.uniforms.modelTransform = new uniform.Mat4(this.aux);
         }
         else{
-            scene.uniforms.modelTransform = new uniform.Mat4(this.matrix);
+            graph.uniforms.modelTransform = new uniform.Mat4(this.matrix);
         }
     },
-    exit: function(scene) {
-        scene.popUniforms();
+    exit: function(graph) {
+        graph.popUniforms();
     }
 });
 
@@ -201,8 +193,8 @@ scene.SimpleMesh = function SimpleMesh(vbo){
     this.vbo = vbo;
 }
 scene.SimpleMesh.prototype = {
-    visit: function (scene) {
-        var shader = scene.getShader(),
+    visit: function (graph) {
+        var shader = graph.getShader(),
             location = shader.getAttribLocation('position'),
             stride = 0,
             offset = 0,
@@ -211,12 +203,9 @@ scene.SimpleMesh.prototype = {
         gl.vertexAttribPointer(location, 3, gl.FLOAT, normalized, stride, offset);
 
         this.vbo.bind();
-        shader.uniforms(scene.uniforms);
+        shader.uniforms(graph.uniforms);
         this.vbo.drawTriangles();
     }
 };
-
-var SunLight = uniformNode('sunLightDirection', 'sunColor'),
-    Fog = uniformNode('fogViewDistance', 'fogColor');
 
 })();

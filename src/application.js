@@ -33,6 +33,8 @@ loader.load([
     'shaders/transform.vertex',
     'shaders/heightmap.vertex',
     'shaders/color.frag',
+    'shaders/terrain.frag',
+    'shaders/hemisphere.glsl',
     'gfx/heightmap.png'
 ]);
 
@@ -50,7 +52,7 @@ function prepareScene(){
     var vbo = new glUtils.VBO(mesh.grid(GRID)),
         heightmapTexture = new glUtils.Texture2D(resources['gfx/heightmap.png']),
         grid = new scene.SimpleMesh(vbo),
-        shader = shaderManager.get('heightmap.vertex', 'color.frag'),
+        shader = shaderManager.get('heightmap.vertex', 'terrain.frag'),
         transform = new scene.Transform([grid]),
         material = new scene.Material(shader, {
             color: new uniform.Vec3([1, 0, 0]),

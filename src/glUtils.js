@@ -48,6 +48,8 @@ glUtils.getContext = function (canvas, debug) {
         console.log('running in debug context');
     }
 
+    gl.enable(gl.DEPTH_TEST);
+
     gl.lost = false;
     canvas.addEventListener('webglcontextlost', function () {
         console.log('lost webgl context!');
