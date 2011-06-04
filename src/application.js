@@ -22,6 +22,8 @@ var GRID_RESOLUTION = 1024,
     loader = new Loader(),
     resources = loader.resources,
     shaderManager = new ShaderManager(resources),
+    time = 0,
+    globalUniforms,
     controller;
 
 function prepareScene(){
@@ -34,16 +36,17 @@ function prepareScene(){
         mountainShader = shaderManager.get('heightmap.vertex', 'terrain.frag'),
         waterShader = shaderManager.get('water'),
         postShader = shaderManager.get('screen.vertex', 'tonemapping.frag'),
-        lighting = {
-            skyColor: new uniform.Vec3([0.1, 0.15, 0.45]),
-            // looks sexy for some reason
-            groundColor: new uniform.Vec3([-0.025, -0.05, -0.1]),
-            sunColor: new uniform.Vec3([0.7*2, 0.6*2, 0.75*2]),
-            sunDirection: new uniform.Vec3([0.577, 0.577, 0.577]),
-            // fugly
-            clip: 1000
-        },
         mountainTransform, waterTransform, flipTransform;
+    globalUniforms = {
+        skyColor: new uniform.Vec3([0.1, 0.15, 0.45]),
+        // looks sexy for some reason
+        groundColor: new uniform.Vec3([-0.025, -0.05, -0.1]),
+        sunColor: new uniform.Vec3([0.7*2, 0.6*2, 0.75*2]),
+        sunDirection: new uniform.Vec3([0.577, 0.577, 0.577]),
+        time: time,
+        clip: 1000
+    };
+
 
     var mountain = new scene.Material(mountainShader, {
                 heightmap: heightmapTexture
@@ -58,7 +61,7 @@ function prepareScene(){
         mountainDepthTarget = new scene.RenderTarget(mountainDepthFBO, [mountain]),
         reflectionFBO = new glUtils.FBO(512, 512, gl.FLOAT),
         reflectionTarget = new scene.RenderTarget(reflectionFBO, [
-            new scene.Uniforms({clip: 0}, [
+            new scene.Uniforms({clip: 0.2}, [
                 flipTransform = new scene.Transform([mountain])
             ])
         ]),
@@ -75,7 +78,7 @@ function prepareScene(){
         combinedTarget = new scene.RenderTarget(combinedFBO, [mountain, water]);
 
     var camera = new scene.Camera([
-            new scene.Uniforms(lighting, [
+            new scene.Uniforms(globalUniforms, [
                 reflectionTarget,
                 combinedTarget
             ])
@@ -132,6 +135,8 @@ loader.load([
 ]);
 
 clock.ontick = function(td) {
+    time += 1.0;
+    globalUniforms.time = time;
     sceneGraph.draw();
     controller.tick();
 };
