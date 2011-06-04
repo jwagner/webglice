@@ -31,7 +31,7 @@ mesh.grid = function(size){
             buffer[i++] = (x+1)/size;
             buffer[i++] = 0;
             buffer[i++] = y/size;
-        };
+        }
     }
     return buffer;
 };

@@ -13,7 +13,7 @@ function glValue(set){
 
 uniform.Mat4 = glValue(function (location) {
     gl.uniformMatrix4fv(location, false, this.value);
-}),
+});
 uniform.Mat3 = glValue(function (location) {
     gl.uniformMatrix3fv(location, false, this.value);
 });

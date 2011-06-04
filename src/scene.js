@@ -1,5 +1,6 @@
 (function(){
 var scene = provides('scene'),
+    glUtils = requires('glUtils'),
     uniform = requires('uniform');
 
 scene.Node = function SceneNode(children){
@@ -43,6 +44,7 @@ scene.Uniforms.prototype = extend({}, scene.Node.prototype, {
         for(var uniform in this.uniforms){
             var value = this.uniforms[uniform];
             if(value.bindTexture){
+                value.unbindTexture();
                 graph.popTexture();
             }
         }
@@ -112,10 +114,12 @@ scene.RenderTarget = function RenderTarget(fbo, children){
 scene.RenderTarget.prototype = extend({}, scene.Node.prototype, {
     enter: function(graph) {
         this.fbo.bind();
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.viewport(0, 0, this.fbo.width, this.fbo.height);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     },
     exit: function(graph) {
+        // needed?
+        gl.finish();
         this.fbo.unbind();
         gl.viewport(0, 0, graph.viewportWidth, graph.viewportHeight);
     }
@@ -168,6 +172,20 @@ scene.Camera.prototype = extend({}, scene.Node.prototype, {
     }
 });
 
+scene.Postprocess = function PostprocessNode(shader, uniforms) {
+    var mesh = new scene.SimpleMesh(new glUtils.VBO(new Float32Array([
+            -1, 1, 0,
+            -1, -1, 0,
+            1, -1, 0,
+            -1, 1, 0,
+            1, -1, 0,
+            1, 1, 0
+        ]))),
+        material = new scene.Material(shader, uniforms, [mesh]);
+    this.children = [material];
+}
+scene.Postprocess.prototype = scene.Node.prototype;
+
 scene.Transform = function Transform(children){
     this.children = children || [];
     this.matrix = mat4.create();
@@ -200,12 +218,17 @@ scene.SimpleMesh.prototype = {
             stride = 0,
             offset = 0,
             normalized = false;
+
+        this.vbo.bind();
+
         gl.enableVertexAttribArray(location);
         gl.vertexAttribPointer(location, 3, gl.FLOAT, normalized, stride, offset);
 
-        this.vbo.bind();
         shader.uniforms(graph.uniforms);
+
         this.vbo.drawTriangles();
+
+        this.vbo.unbind();
     }
 };
 
