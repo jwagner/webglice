@@ -59,7 +59,7 @@ function prepareScene(){
     var fbo = new glUtils.FBO(2048, 2048, gl.FLOAT),
         mountainTarget = new scene.RenderTarget(fbo, [camera]);
         postprocess = new scene.Postprocess(shaderManager.get('screen.vertex', 'tonemapping.frag'), {
-            texture: fbo
+            texture: fbo,
         });
 
     camera.position[1] = 30;
@@ -74,7 +74,7 @@ function prepareScene(){
     sceneGraph.root.append(mountainTarget);
     sceneGraph.root.append(postprocess);
 
-    gl.clearColor(0.4, 0.6, 1.0, 1.0);
+    gl.clearColor(0.4, 0.6, 1.0, GRID);
 
     controller = new MouseController(input, camera);
 }
@@ -97,7 +97,9 @@ loader.load([
     'shaders/screen.vertex',
 
     'shaders/hemisphere.glsl',
+    'shaders/transform.glsl',
     'shaders/sun.glsl',
+
     'gfx/heightmap.png'
 ]);
 

@@ -2,6 +2,8 @@ precision highp float;
 
 varying vec2 screenPosition;
 uniform sampler2D texture;
+uniform vec3 atmosphereColor;
+uniform float atmosphereDistance;
 
 void main(){
   vec4 color = texture2D(texture, screenPosition);
