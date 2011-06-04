@@ -14,6 +14,7 @@ void main(){
   if(worldPosition.y > clip) {
     discard;
   }
-  vec3 color = lightHemisphere(surfaceNormal)+sunLight(surfaceNormal);
+  vec3 eyeNormal = normalize(worldPosition - eye);
+  vec3 color = lightHemisphere(surfaceNormal)+sunLight(surfaceNormal, eyeNormal, 10.0, 0.5, 1.0);
   gl_FragColor = vec4(color, depth);
 }
