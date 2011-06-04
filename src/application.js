@@ -28,6 +28,7 @@ function prepareScene(){
     sceneGraph = new scene.Graph();
 
     var vbo = new glUtils.VBO(mesh.grid(GRID_RESOLUTION)),
+        waterVBO = new glUtils.VBO(mesh.grid(100)),
         heightmapTexture = new glUtils.Texture2D(resources['gfx/heightmap.png']),
         mountainShader = shaderManager.get('heightmap.vertex', 'terrain.frag'),
         waterShader = shaderManager.get('water'),
@@ -37,11 +38,15 @@ function prepareScene(){
             // looks sexy for some reason
             groundColor: new uniform.Vec3([-0.025, -0.05, -0.1]),
             sunColor: new uniform.Vec3([0.7*2, 0.6*2, 0.75*2]),
-            sunDirection: new uniform.Vec3([0.577, 0.577, 0.577])
+            sunDirection: new uniform.Vec3([0.577, 0.577, 0.577]),
+            // fugly
+            clip: 1000
         },
         mountainTransform, waterTransform, flipTransform;
 
-    var mountain = new scene.Material(mountainShader, { heightmap: heightmapTexture}, [
+    var mountain = new scene.Material(mountainShader, {
+                heightmap: heightmapTexture
+            }, [
             mountainTransform = new scene.Transform([
                 new scene.SimpleMesh(vbo)
             ])
@@ -50,17 +55,18 @@ function prepareScene(){
         // can be optimized with a z only shader
     var mountainDepthFBO = new glUtils.FBO(1024, 1024, gl.FLOAT),
         mountainDepthTarget = new scene.RenderTarget(mountainDepthFBO, [mountain]),
-        reflectionFBO = new glUtils.FBO(1024, 1024, gl.FLOAT),
+        reflectionFBO = new glUtils.FBO(512, 512, gl.FLOAT),
         reflectionTarget = new scene.RenderTarget(reflectionFBO, [
-            mountain
-            //flipTransform = new scene.Transform([mountain])
+            new scene.Uniforms({clip: 0}, [
+                flipTransform = new scene.Transform([mountain])
+            ])
         ]),
         water = new scene.Material(waterShader, {
                 color: new uniform.Vec3([0.2, 0.5, 1]),
                 reflection: reflectionFBO
             }, [
                 waterTransform = new scene.Transform([
-                    new scene.SimpleMesh(vbo)
+                    new scene.SimpleMesh(waterVBO)
                 ])
             ]);
         combinedFBO = new glUtils.FBO(1024, 1024, gl.FLOAT),
@@ -76,20 +82,22 @@ function prepareScene(){
             texture: combinedFBO,
         });
 
+ //   mountainTransform.debug = true;
+
     camera.position[1] = 30;
 
     mat4.translate(mountainTransform.matrix, [-0.5*GRID_SIZE, -50, -0.5*GRID_SIZE]);
     mat4.scale(mountainTransform.matrix, [GRID_SIZE, 100, GRID_SIZE]);
 
-    //mat4.scale(flipTransform, [1, -1, 1]);
+    mat4.scale(flipTransform.matrix, [1, -1, 1]);
 
     mat4.translate(waterTransform.matrix, [-FAR_AWAY, 0, -FAR_AWAY]);
-    mat4.scale(waterTransform.matrix, [FAR_AWAY*2, 100, FAR_AWAY*2]);
+    mat4.scale(waterTransform.matrix, [FAR_AWAY*2, 1, FAR_AWAY*2]);
 
     sceneGraph.root.append(camera);
     sceneGraph.root.append(postprocess);
 
-    gl.clearColor(0.4, 0.6, 1.0, FAR_AWAY);
+    gl.clearColor(0.3, 0.4, 1.0, FAR_AWAY);
 
     controller = new MouseController(input, camera);
 }

@@ -7,8 +7,10 @@ scene.Node = function SceneNode(children){
     this.children = children || [];
 }
 scene.Node.prototype = {
+    debug: false,
     children: [],
     visit: function(graph) {
+        if(this.debug) debugger;
         this.enter(graph);
         for(var i = 0; i < this.children.length; i++) {
             var child = this.children[i];
