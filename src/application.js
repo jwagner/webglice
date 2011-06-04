@@ -56,7 +56,9 @@ function prepareScene(){
         transform = new scene.Transform([grid]),
         material = new scene.Material(shader, {
             color: new uniform.Vec3([1, 0, 0]),
-            heightmap: heightmapTexture
+            heightmap: heightmapTexture,
+            skyColor: new uniform.Vec3([0.4, 0.4, 0.5]),
+            groundColor: new uniform.Vec3([0.1, 0.1, 0.2]),
         }, [transform]),
         camera = new scene.Camera([material]);
 
