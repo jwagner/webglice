@@ -30,15 +30,8 @@ function prepareScene(){
     var vbo = new glUtils.VBO(mesh.grid(GRID_RESOLUTION)),
         heightmapTexture = new glUtils.Texture2D(resources['gfx/heightmap.png']),
         mountainShader = shaderManager.get('heightmap.vertex', 'terrain.frag'),
-        waterShader = shaderManager.get('transform.vertex', 'color.frag'),
+        waterShader = shaderManager.get('water'),
         postShader = shaderManager.get('screen.vertex', 'tonemapping.frag'),
-        // can be optimized with a z only shader
-        mountainDepthFBO = new glUtils.FBO(1024, 1024, gl.FLOAT),
-        mountainDepthTarget = new scene.RenderTarget(mountainDepthFBO, []),
-        reflectionFBO = new glUtils.FBO(1024, 1024, gl.FLOAT),
-        reflectionTarget = new scene.RenderTarget(reflectionFBO, []),
-        combinedFBO = new glUtils.FBO(1024, 1024, gl.FLOAT),
-        combinedTarget = new scene.RenderTarget(combinedFBO, []),
         lighting = {
             skyColor: new uniform.Vec3([0.1, 0.15, 0.45]),
             // looks sexy for some reason
@@ -46,45 +39,54 @@ function prepareScene(){
             sunColor: new uniform.Vec3([0.7*2, 0.6*2, 0.75*2]),
             sunDirection: new uniform.Vec3([0.577, 0.577, 0.577])
         },
-        transform, waterTransform;
+        mountainTransform, waterTransform, flipTransform;
 
-    var camera = new scene.Camera([
-        new scene.Uniforms(lighting, [
-            new scene.Material(mountainShader, {
-                heightmap: heightmapTexture
-            }, [
-                transform = new scene.Transform([
-                    new scene.SimpleMesh(vbo)
-                ])
-            ]),
-            new scene.Material(waterShader,{
-                color: new uniform.Vec3([0, 0, 1])
+    var mountain = new scene.Material(mountainShader, { heightmap: heightmapTexture}, [
+            mountainTransform = new scene.Transform([
+                new scene.SimpleMesh(vbo)
+            ])
+        ]);
+
+        // can be optimized with a z only shader
+    var mountainDepthFBO = new glUtils.FBO(1024, 1024, gl.FLOAT),
+        mountainDepthTarget = new scene.RenderTarget(mountainDepthFBO, [mountain]),
+        reflectionFBO = new glUtils.FBO(1024, 1024, gl.FLOAT),
+        reflectionTarget = new scene.RenderTarget(reflectionFBO, [
+            mountain
+            //flipTransform = new scene.Transform([mountain])
+        ]),
+        water = new scene.Material(waterShader, {
+                color: new uniform.Vec3([0.2, 0.5, 1]),
+                reflection: reflectionFBO
             }, [
                 waterTransform = new scene.Transform([
                     new scene.SimpleMesh(vbo)
                 ])
+            ]);
+        combinedFBO = new glUtils.FBO(1024, 1024, gl.FLOAT),
+        combinedTarget = new scene.RenderTarget(combinedFBO, [mountain, water]);
+
+    var camera = new scene.Camera([
+            new scene.Uniforms(lighting, [
+                reflectionTarget,
+                combinedTarget
             ])
-        ])
-    ]);
-
-
-    var fbo = new glUtils.FBO(2048, 2048, gl.FLOAT),
-        mountainTarget = new scene.RenderTarget(fbo, [camera]);
+        ]),
         postprocess = new scene.Postprocess(postShader, {
-            texture: fbo,
+            texture: combinedFBO,
         });
 
     camera.position[1] = 30;
 
-    mat4.scale(transform.matrix, [1, 1, 1]);
-    mat4.translate(transform.matrix, [-0.5*GRID_SIZE, -50, -0.5*GRID_SIZE]);
-    mat4.scale(transform.matrix, [GRID_SIZE, 100, GRID_SIZE]);
+    mat4.translate(mountainTransform.matrix, [-0.5*GRID_SIZE, -50, -0.5*GRID_SIZE]);
+    mat4.scale(mountainTransform.matrix, [GRID_SIZE, 100, GRID_SIZE]);
 
+    //mat4.scale(flipTransform, [1, -1, 1]);
 
     mat4.translate(waterTransform.matrix, [-FAR_AWAY, 0, -FAR_AWAY]);
     mat4.scale(waterTransform.matrix, [FAR_AWAY*2, 100, FAR_AWAY*2]);
 
-    sceneGraph.root.append(mountainTarget);
+    sceneGraph.root.append(camera);
     sceneGraph.root.append(postprocess);
 
     gl.clearColor(0.4, 0.6, 1.0, FAR_AWAY);
@@ -104,6 +106,8 @@ loader.load([
     'shaders/heightmap.vertex',
     'shaders/color.frag',
     'shaders/terrain.frag',
+    'shaders/water.frag',
+    'shaders/water.vertex',
 
     'shaders/screen.frag',
     'shaders/tonemapping.frag',
