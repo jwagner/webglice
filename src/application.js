@@ -57,17 +57,21 @@ function prepareScene(){
         transform = new scene.Transform([grid]),
         material = new scene.Material(shader, {
             color: new uniform.Vec3([1, 0, 0]),
-            heightmap: heightmapTexture,
-            skyColor: new uniform.Vec3([0.4, 0.4, 0.5]),
-            groundColor: new uniform.Vec3([0.1, 0.1, 0.2]),
-            sunColor: new uniform.Vec3([0.6, 0.6, 0.65]),
-            sunDirection: new uniform.Vec3([0.577, 0.577, 0.577]),
+            heightmap: heightmapTexture
         }, [transform]),
-        camera = new scene.Camera([material]);
+        lighting = new scene.Uniforms({
+            skyColor: new uniform.Vec3([0.2, 0.3, 0.35]),
+            groundColor: new uniform.Vec3([0.05, 0.1, 0.3]),
+            sunColor: new uniform.Vec3([0.7, 0.6, 0.75]),
+            sunDirection: new uniform.Vec3([0.577, 0.577, 0.577]),
+        }, [material]),
+        camera = new scene.Camera([lighting]);
 
     mat4.translate(transform.matrix, [-0.5*GRID, -80, -0.5*GRID]);
     mat4.scale(transform.matrix, [GRID, 100, GRID]);
     sceneGraph.root.append(camera);
+
+    gl.clearColor(0.4, 0.6, 1.0, 1.0);
 
     controller = new MouseController(input, camera);
 }

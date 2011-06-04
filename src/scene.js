@@ -140,6 +140,7 @@ scene.Camera.prototype = extend({}, scene.Node.prototype, {
         graph.pushUniforms();
         mat4.multiply(projection, worldView, wvp);
         graph.uniforms.worldViewProjection = new uniform.Mat4(wvp);
+        graph.uniforms.eye = new uniform.Vec3(this.position);
         //this.project([0, 0, 0, 1], scene);
     },
     project: function(point, graph) {
