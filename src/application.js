@@ -30,6 +30,7 @@ function prepareScene(){
     var vbo = new glUtils.VBO(mesh.grid(GRID_RESOLUTION)),
         waterVBO = new glUtils.VBO(mesh.grid(100)),
         heightmapTexture = new glUtils.Texture2D(resources['gfx/heightmap.png']),
+        normalnoiseTexture = new glUtils.Texture2D(resources['gfx/normalnoise.png']),
         mountainShader = shaderManager.get('heightmap.vertex', 'terrain.frag'),
         waterShader = shaderManager.get('water'),
         postShader = shaderManager.get('screen.vertex', 'tonemapping.frag'),
@@ -63,7 +64,8 @@ function prepareScene(){
         ]),
         water = new scene.Material(waterShader, {
                 color: new uniform.Vec3([0.2, 0.5, 1]),
-                reflection: reflectionFBO
+                reflection: reflectionFBO,
+                normalnoise: normalnoiseTexture
             }, [
                 waterTransform = new scene.Transform([
                     new scene.SimpleMesh(waterVBO)
@@ -125,7 +127,8 @@ loader.load([
     'shaders/transform.glsl',
     'shaders/sun.glsl',
 
-    'gfx/heightmap.png'
+    'gfx/heightmap.png',
+    'gfx/normalnoise.png'
 ]);
 
 clock.ontick = function(td) {
