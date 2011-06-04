@@ -66,7 +66,7 @@ shader.Manager.prototype = {
     prefix: 'shaders/',
     includeExpression: /#include "([^"]+)"/,
     preprocess: function(content) {
-        return content.replace(this.include, function (_, name) {
+        return content.replace(this.includeExpression, function (_, name) {
             return this.getSource(name);
         }.bind(this));
     },
