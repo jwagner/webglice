@@ -31,16 +31,25 @@ function prepareScene(){
         heightmapTexture = new glUtils.Texture2D(resources['gfx/heightmap.png']),
         mountainShader = shaderManager.get('heightmap.vertex', 'terrain.frag'),
         waterShader = shaderManager.get('transform.vertex', 'color.frag'),
-        transform, waterTransform;
-        
-    var camera = new scene.Camera([
-        new scene.Uniforms({
+        postShader = shaderManager.get('screen.vertex', 'tonemapping.frag'),
+        // can be optimized with a z only shader
+        mountainDepthFBO = new glUtils.FBO(1024, 1024, gl.FLOAT),
+        mountainDepthTarget = new scene.RenderTarget(mountainDepthFBO, []),
+        reflectionFBO = new glUtils.FBO(1024, 1024, gl.FLOAT),
+        reflectionTarget = new scene.RenderTarget(reflectionFBO, []),
+        combinedFBO = new glUtils.FBO(1024, 1024, gl.FLOAT),
+        combinedTarget = new scene.RenderTarget(combinedFBO, []),
+        lighting = {
             skyColor: new uniform.Vec3([0.1, 0.15, 0.45]),
             // looks sexy for some reason
             groundColor: new uniform.Vec3([-0.025, -0.05, -0.1]),
             sunColor: new uniform.Vec3([0.7*2, 0.6*2, 0.75*2]),
             sunDirection: new uniform.Vec3([0.577, 0.577, 0.577])
-        }, [
+        },
+        transform, waterTransform;
+
+    var camera = new scene.Camera([
+        new scene.Uniforms(lighting, [
             new scene.Material(mountainShader, {
                 heightmap: heightmapTexture
             }, [
@@ -61,7 +70,7 @@ function prepareScene(){
 
     var fbo = new glUtils.FBO(2048, 2048, gl.FLOAT),
         mountainTarget = new scene.RenderTarget(fbo, [camera]);
-        postprocess = new scene.Postprocess(shaderManager.get('screen.vertex', 'tonemapping.frag'), {
+        postprocess = new scene.Postprocess(postShader, {
             texture: fbo,
         });
 

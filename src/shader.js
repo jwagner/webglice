@@ -71,7 +71,11 @@ shader.Manager.prototype = {
         }.bind(this));
     },
     getSource: function(name) {
-        return this.preprocess(this.resources[this.prefix + name]);
+        var content = this.resources[this.prefix + name];
+        if(!content) {
+            throw 'shader not found: ' + name;
+        }
+        return this.preprocess(content);
     },
     get: function(vertex, frag) {
         if(!frag) {
