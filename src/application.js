@@ -35,6 +35,7 @@ loader.load([
     'shaders/color.frag',
     'shaders/terrain.frag',
     'shaders/hemisphere.glsl',
+    'shaders/sun.glsl',
     'gfx/heightmap.png'
 ]);
 
@@ -59,6 +60,8 @@ function prepareScene(){
             heightmap: heightmapTexture,
             skyColor: new uniform.Vec3([0.4, 0.4, 0.5]),
             groundColor: new uniform.Vec3([0.1, 0.1, 0.2]),
+            sunColor: new uniform.Vec3([0.6, 0.6, 0.65]),
+            sunDirection: new uniform.Vec3([0.577, 0.577, 0.577]),
         }, [transform]),
         camera = new scene.Camera([material]);
 
