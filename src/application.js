@@ -36,6 +36,9 @@ function prepareScene(){
         mountainShader = shaderManager.get('heightmap.vertex', 'terrain.frag'),
         waterShader = shaderManager.get('water'),
         postShader = shaderManager.get('screen.vertex', 'tonemapping.frag'),
+        brightpassShader = shaderManager.get('screen.vertex', 'brightpass.frag'),
+        vblurShader = shaderManager.get('screen.vertex', 'vblur.frag'),
+        hblurShader = shaderManager.get('screen.vertex', 'hblur.frag'),
         skyShader = shaderManager.get('transform.vertex', 'sky.frag'),
         mountainTransform, waterTransform, flipTransform;
     globalUniforms = {
@@ -66,13 +69,13 @@ function prepareScene(){
         ]);
 
         // can be optimized with a z only shader
-    var mountainDepthFBO = new glUtils.FBO(1024, 1024, gl.FLOAT),
+    var mountainDepthFBO = new glUtils.FBO(1024, 512, gl.FLOAT),
         mountainDepthTarget = new scene.RenderTarget(mountainDepthFBO, [
             new scene.Uniforms({clip: 0.5}, [
                 mountain
             ])
         ]),
-        reflectionFBO = new glUtils.FBO(512, 512, gl.FLOAT),
+        reflectionFBO = new glUtils.FBO(1024, 512, gl.FLOAT),
         reflectionTarget = new scene.RenderTarget(reflectionFBO, [
             new scene.Uniforms({clip: 0.2}, [
                 flipTransform = new scene.Transform([mountain, sky])
@@ -88,8 +91,31 @@ function prepareScene(){
                     new scene.SimpleMesh(waterVBO)
                 ])
             ]);
-        combinedFBO = new glUtils.FBO(1024, 1024, gl.FLOAT),
-        combinedTarget = new scene.RenderTarget(combinedFBO, [mountain, water, sky]);
+        combinedFBO = new glUtils.FBO(2048, 1024, gl.FLOAT),
+        combinedTarget = new scene.RenderTarget(combinedFBO, [mountain, water, sky]),
+        bloomFBO0 = new glUtils.FBO(1024, 512),
+        bloomFBO1 = new glUtils.FBO(1024, 512),
+        brightpass = new scene.RenderTarget(bloomFBO0, [
+            new scene.Postprocess(brightpassShader, {
+                texture: combinedFBO
+            })
+        ]),
+        hblurpass = new scene.RenderTarget(bloomFBO1, [
+            new scene.Postprocess(hblurShader, {
+                texture: bloomFBO0
+            })
+        ]),
+        vblurpass = new scene.RenderTarget(bloomFBO0, [
+            new scene.Postprocess(vblurShader, {
+                texture: bloomFBO1
+            })
+        ]),
+        bloom = new scene.Node([
+            brightpass,
+            hblurpass,
+            vblurpass
+        ]);
+
 
     var camera = new scene.Camera([
             new scene.Uniforms(globalUniforms, [
@@ -100,6 +126,7 @@ function prepareScene(){
         ]),
         postprocess = new scene.Postprocess(postShader, {
             texture: combinedFBO,
+            bloom: bloomFBO0
         });
 
  //   mountainTransform.debug = true;
@@ -119,6 +146,7 @@ function prepareScene(){
     camera.far = FAR_AWAY*2;
 
     sceneGraph.root.append(camera);
+    sceneGraph.root.append(bloom);
     sceneGraph.root.append(postprocess);
 
     gl.clearColor(0.3, 0.4, 1.0, FAR_AWAY);
@@ -144,6 +172,9 @@ loader.load([
 
     'shaders/screen.frag',
     'shaders/tonemapping.frag',
+    'shaders/hblur.frag',
+    'shaders/vblur.frag',
+    'shaders/brightpass.frag',
     'shaders/screen.vertex',
 
     'shaders/hemisphere.glsl',
