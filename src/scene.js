@@ -121,7 +121,6 @@ scene.RenderTarget.prototype = extend({}, scene.Node.prototype, {
     },
     exit: function(graph) {
         // needed?
-        gl.finish();
         this.fbo.unbind();
         gl.viewport(0, 0, graph.viewportWidth, graph.viewportHeight);
     }

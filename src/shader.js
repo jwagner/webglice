@@ -31,7 +31,8 @@ function makeProgram(vertexSource, fragmentSource){
 
 function Shader(vertexSource, fragmentSource) {
         this.program = makeProgram(vertexSource, fragmentSource);
-        this.uniformInfo = {};
+        this.uniformLocations = {};
+        this.attributeLocations = {};
 }
 Shader.prototype = {
     use: function() {
@@ -39,7 +40,7 @@ Shader.prototype = {
     },
     uniforms: function (values) {
         for(var name in values){
-            var location = gl.getUniformLocation(this.program, name),
+            var location = this.getUniformLocation(name),
                 value = values[name];
             if(typeof value == 'number'){
                 gl.uniform1f(location, value);
@@ -49,12 +50,21 @@ Shader.prototype = {
             }
         }
     },
-    getAttribLocation: function(name) {
-        var location = gl.getAttribLocation(this.program, name);
-        if(location < 0){
-            throw 'undefined attribute ' + name;
+    getUniformLocation: function(name) {
+        if(!(name in this.uniformLocations)){
+            this.uniformLocations[name] = gl.getUniformLocation(this.program, name);
         }
-        return location;
+        return this.uniformLocations[name];
+    },
+    getAttribLocation: function(name) {
+        if(!(name in this.attributeLocations)){
+            var location = gl.getAttribLocation(this.program, name);
+            if(location < 0){
+                throw 'undefined attribute ' + name;
+            }
+            this.attributeLocations[name] = location;
+        }
+        return this.attributeLocations[name];
     }
 };
 

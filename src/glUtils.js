@@ -59,7 +59,6 @@ glUtils.FBO = function FBO(width, height, format){
 
     this.texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
-    debugger;
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, format || gl.UNSIGNED_BYTE, null);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -82,7 +81,6 @@ glUtils.FBO = function FBO(width, height, format){
 glUtils.FBO.prototype = $.extend({}, glUtils.Texture2D.prototype, {
     bind: function () {
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
-        gl.viewport(0, 0, this.width, this.height);
     },
     unbind: function() {
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
