@@ -36,16 +36,19 @@ function prepareScene(){
         mountainShader = shaderManager.get('heightmap.vertex', 'terrain.frag'),
         waterShader = shaderManager.get('water'),
         postShader = shaderManager.get('screen.vertex', 'tonemapping.frag'),
+        skyShader = shaderManager.get('transform.vertex', 'sky.frag'),
         mountainTransform, waterTransform, flipTransform;
     globalUniforms = {
         skyColor: new uniform.Vec3([0.1, 0.15, 0.45]),
         // looks sexy for some reason
         groundColor: new uniform.Vec3([-0.025, -0.05, -0.1]),
         sunColor: new uniform.Vec3([0.7*2, 0.6*2, 0.75*2]),
-        sunDirection: new uniform.Vec3([0.577, 0.577, 0.577]),
+        sunDirection: new uniform.Vec3([0.577, 0.577, 0.077]),
         time: time,
         clip: 1000
     };
+
+    vec3.normalize(globalUniforms.sunDirection.value);
 
 
     var mountain = new scene.Material(mountainShader, {
@@ -54,6 +57,12 @@ function prepareScene(){
             mountainTransform = new scene.Transform([
                 new scene.SimpleMesh(vbo)
             ])
+        ]),
+        sky = new scene.Transform([
+            new scene.Skybox(skyShader, {
+                horizonColor: new uniform.Vec3([0.2, 0.5,1]),
+                zenithColor: new uniform.Vec3([0.05, 0.2, 0.8])
+            })
         ]);
 
         // can be optimized with a z only shader
@@ -62,11 +71,11 @@ function prepareScene(){
         reflectionFBO = new glUtils.FBO(512, 512, gl.FLOAT),
         reflectionTarget = new scene.RenderTarget(reflectionFBO, [
             new scene.Uniforms({clip: 0.2}, [
-                flipTransform = new scene.Transform([mountain])
+                flipTransform = new scene.Transform([mountain, sky])
             ])
         ]),
         water = new scene.Material(waterShader, {
-                color: new uniform.Vec3([0.2, 0.5, 1]),
+                color: new uniform.Vec3([0.05, 0.1, 0.2]),
                 reflection: reflectionFBO,
                 normalnoise: normalnoiseTexture
             }, [
@@ -75,7 +84,7 @@ function prepareScene(){
                 ])
             ]);
         combinedFBO = new glUtils.FBO(1024, 1024, gl.FLOAT),
-        combinedTarget = new scene.RenderTarget(combinedFBO, [mountain, water]);
+        combinedTarget = new scene.RenderTarget(combinedFBO, [mountain, water, sky]);
 
     var camera = new scene.Camera([
             new scene.Uniforms(globalUniforms, [
@@ -99,6 +108,10 @@ function prepareScene(){
     mat4.translate(waterTransform.matrix, [-FAR_AWAY, 0, -FAR_AWAY]);
     mat4.scale(waterTransform.matrix, [FAR_AWAY*2, 1, FAR_AWAY*2]);
 
+    mat4.scale(sky.matrix, [FAR_AWAY, FAR_AWAY, FAR_AWAY]);
+
+    camera.far = FAR_AWAY*2;
+
     sceneGraph.root.append(camera);
     sceneGraph.root.append(postprocess);
 
@@ -118,6 +131,7 @@ loader.load([
     'shaders/transform.vertex',
     'shaders/heightmap.vertex',
     'shaders/color.frag',
+    'shaders/sky.frag',
     'shaders/terrain.frag',
     'shaders/water.frag',
     'shaders/water.vertex',
@@ -131,7 +145,8 @@ loader.load([
     'shaders/sun.glsl',
 
     'gfx/heightmap.png',
-    'gfx/normalnoise.png'
+    'gfx/normalnoise.png',
+    'gfx/waternormal.jpg'
 ]);
 
 clock.ontick = function(td) {

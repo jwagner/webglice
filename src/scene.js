@@ -174,11 +174,65 @@ scene.Camera.prototype = extend({}, scene.Node.prototype, {
     }
 });
 
+scene.Skybox = function SkyboxNode(shader, uniforms) {
+    var mesh = new scene.SimpleMesh(new glUtils.VBO(new Float32Array([
+            // back
+            -1, 1, 1,
+            -1, -1, 1,
+            1, 1, 1,
+            
+            -1, 1, 1,
+            1, -1, 1,
+            1, 1, 1,
+
+            // front
+            -1, 1, -1,
+            -1, -1, -1,
+            1, 1, -1,
+            
+            -1, 1, -1,
+            1, -1, -1,
+            1, 1, -1,
+
+            // left
+            -1, 1, -1,
+            -1, -1, -1,
+            -1, 1, 1,
+            
+            -1, 1, -1,
+            -1, -1, 1,
+            -1, 1, 1,
+
+            // right
+            1, 1, -1,
+            1, -1, -1,
+            1, 1, 1,
+            
+            1, 1, -1,
+            1, -1, 1,
+            1, 1, 1,
+
+            // top
+            -1, 1, -1,
+            -1, 1, 1,
+            1, 1, 1,
+
+            -1, 1, -1,
+            1, 1, 1,
+            1, 1, -1
+
+        ]))),
+        material = new scene.Material(shader, uniforms, [mesh]);
+    this.children = [material];
+}
+scene.Skybox.prototype = scene.Node.prototype;
+
 scene.Postprocess = function PostprocessNode(shader, uniforms) {
     var mesh = new scene.SimpleMesh(new glUtils.VBO(new Float32Array([
             -1, 1, 0,
             -1, -1, 0,
             1, -1, 0,
+            
             -1, 1, 0,
             1, -1, 0,
             1, 1, 0
