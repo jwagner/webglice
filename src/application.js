@@ -4,7 +4,7 @@ provides('main');
 
 var sceneGraph;
 
-var GRID_RESOLUTION = 1024,
+var GRID_RESOLUTION = 512,
     GRID_SIZE = 512,
     FAR_AWAY = 10000,
     scene = requires('scene'),
