@@ -5,6 +5,7 @@ varying vec4 projected;
 varying vec3 worldPosition;
 uniform vec3 color;
 uniform sampler2D reflection;
+uniform sampler2D refraction;
 uniform sampler2D normalnoise;
 uniform vec3 eye;
 uniform float time;
@@ -16,8 +17,15 @@ void main(){
   vec4 noise = (texture2D(normalnoise, (uv+vec2(time*0.02, time*0.019))*0.07)) + 
                (texture2D(normalnoise, (uv-vec2(time*0.021, -time*0.022))*0.05)) -1.0;
   vec2 screenPosition = ((vec2(projected)/projected.w) + 1.0) * 0.5;
+
   vec2 reflectionUV = clamp(screenPosition+vec2(noise.x, noise.y*0.5)*0.05, vec2(0.01), vec2(0.99));
-  vec3 reflection = vec3(texture2D(reflection, reflectionUV));
+  vec3 reflectionSample = vec3(texture2D(reflection, reflectionUV-vec2(noise)*0.05));
+
+  vec4 refractionSample = texture2D(refraction, clamp(
+    screenPosition-vec2(noise)*0.01, vec2(0.01), vec2(0.99)));
+  float waterDepth = refractionSample.a-projected.z;
+  vec3 refractionColor = mix(vec3(refractionSample), color,
+    min(waterDepth/6.0*vec3(1.1, 1.0, 0.9), vec3(1.0)))*0.5;
 
   vec3 eyeNormal = normalize(worldPosition-eye);
   vec3 surfaceNormal = normalize(vec3(0, 1, 0)+vec3(noise.x, 0, noise.y)*0.5);
@@ -37,7 +45,7 @@ void main(){
 
   vec3 light = sunLight(surfaceNormal, eyeNormal, 10.0, 5.0, 1.0);
 
-  gl_FragColor = vec4(worldPosition+vec3(noise), 1.0);
-  gl_FragColor = vec4((reflection*reflectance)+color*light*1.0, depth);
+  //gl_FragColor = vec4(worldPosition+vec3(noise), 1.0);
+  gl_FragColor = vec4((reflectionSample*reflectance)+refractionColor*light, depth);
 
 }

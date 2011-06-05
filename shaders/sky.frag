@@ -15,5 +15,5 @@ void main(){
   vec3 sun = max(sunTheta-0.999, 0.0)*sunColor*10000.0;
   vec3 sunAtmosphere = max(sunColor-zenithColor, vec3(0.0))*max(sunTheta-0.995, 0.0)*10.0;
   sunAtmosphere = sunAtmosphere*sunAtmosphere*50.0;
-  gl_FragColor = vec4(skyColor+sun+sunAtmosphere, depth);
+  gl_FragColor = vec4(skyColor+sun+sunAtmosphere, depth*(1.0-a));
 }
