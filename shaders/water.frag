@@ -22,7 +22,9 @@ void main(){
   vec3 reflectionSample = vec3(texture2D(reflection, reflectionUV-vec2(noise)*0.05));
 
   vec4 refractionSample = texture2D(refraction, clamp(
-    screenPosition-vec2(noise)*0.01, vec2(0.01), vec2(0.99)));
+    screenPosition-vec2(noise.x, noise.y*0.5)*0.01, vec2(0.01), vec2(0.99)));
+  vec4 backgroundSample = texture2D(refraction, screenPosition);
+
   float waterDepth = refractionSample.a-projected.z;
   vec3 refractionColor = mix(vec3(refractionSample), color,
     min(waterDepth/6.0*vec3(1.1, 1.0, 0.9), vec3(1.0)))*0.5;
@@ -32,6 +34,7 @@ void main(){
 
   float theta1 = abs(dot(eyeNormal, surfaceNormal));
   vec3 rf0 = vec3(0.02, 0.02, 0.02); // realtime rendering, page 236
+
   
   vec3 reflectance = rf0 + (1.0 - rf0)*pow((1.0 - theta1), 5.0);
 
@@ -44,8 +47,11 @@ void main(){
   float reflectance = (rs*rs + rp*rp);*/
 
   vec3 light = sunLight(surfaceNormal, eyeNormal, 10.0, 5.0, 1.0);
+  vec3 finalColor = (reflectionSample*reflectance)+refractionColor*light;
+  float alpha = clamp(waterDepth-1.0, 0.0, 1.0);
 
   //gl_FragColor = vec4(worldPosition+vec3(noise), 1.0);
-  gl_FragColor = vec4((reflectionSample*reflectance)+refractionColor*light, depth);
+  //gl_FragColor = vec4(finalColor, depth);
+  gl_FragColor = vec4(mix(vec3(backgroundSample), finalColor, alpha), depth);
 
 }

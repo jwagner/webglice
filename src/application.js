@@ -68,7 +68,7 @@ function prepareScene(){
         // can be optimized with a z only shader
     var mountainDepthFBO = new glUtils.FBO(1024, 1024, gl.FLOAT),
         mountainDepthTarget = new scene.RenderTarget(mountainDepthFBO, [
-            new scene.Uniforms({clip: 0.2}, [
+            new scene.Uniforms({clip: 0.5}, [
                 mountain
             ])
         ]),
