@@ -93,8 +93,8 @@ function prepareScene(){
             ]);
         combinedFBO = new glUtils.FBO(2048, 1024, gl.FLOAT),
         combinedTarget = new scene.RenderTarget(combinedFBO, [mountain, water, sky]),
-        bloomFBO0 = new glUtils.FBO(1024, 512),
-        bloomFBO1 = new glUtils.FBO(1024, 512),
+        bloomFBO0 = new glUtils.FBO(512, 256),
+        bloomFBO1 = new glUtils.FBO(512, 256),
         brightpass = new scene.RenderTarget(bloomFBO0, [
             new scene.Postprocess(brightpassShader, {
                 texture: combinedFBO
@@ -149,7 +149,7 @@ function prepareScene(){
     sceneGraph.root.append(bloom);
     sceneGraph.root.append(postprocess);
 
-    gl.clearColor(0.3, 0.4, 1.0, FAR_AWAY);
+    gl.clearColor(0.0, 0.0, 0.0, FAR_AWAY);
 
     controller = new MouseController(input, camera);
 }
