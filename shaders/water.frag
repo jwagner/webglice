@@ -47,7 +47,7 @@ void main(){
   float reflectance = (rs*rs + rp*rp);*/
 
   vec3 light = sunLight(surfaceNormal, eyeNormal, 10.0, 5.0, 1.0);
-  vec3 finalColor = (reflectionSample*reflectance)+refractionColor*light;
+  vec3 finalColor = (reflectionSample*reflectance*0.8)+refractionColor*light;
   float alpha = clamp(waterDepth-1.0, 0.0, 1.0);
 
   //gl_FragColor = vec4(worldPosition+vec3(noise), 1.0);

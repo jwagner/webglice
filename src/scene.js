@@ -220,6 +220,16 @@ scene.Skybox = function SkyboxNode(shader, uniforms) {
             1, 1, 1,
             1, 1, -1
 
+            // bottom
+            -1, -1, -1,
+            -1, -1, 1,
+            1, -1, 1,
+
+            -1, -1, -1,
+            1, -1, 1,
+            1, -1, -1
+
+
         ]))),
         material = new scene.Material(shader, uniforms, [mesh]);
     this.children = [material];

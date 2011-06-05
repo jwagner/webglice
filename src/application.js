@@ -63,7 +63,7 @@ function prepareScene(){
         ]),
         sky = new scene.Transform([
             new scene.Skybox(skyShader, {
-                horizonColor: new uniform.Vec3([0.3, 0.6, 1.2]),
+                horizonColor: new uniform.Vec3([0.35, 0.7, 1.4]),
                 zenithColor: new uniform.Vec3([0.05, 0.2, 0.8])
             })
         ]);
@@ -138,9 +138,10 @@ function prepareScene(){
 
     mat4.scale(flipTransform.matrix, [1, -1, 1]);
 
-    mat4.translate(waterTransform.matrix, [-FAR_AWAY, 0, -FAR_AWAY]);
-    mat4.scale(waterTransform.matrix, [FAR_AWAY*2, 1, FAR_AWAY*2]);
+    mat4.translate(waterTransform.matrix, [-FAR_AWAY*0.5, 0, -FAR_AWAY*0.5]);
+    mat4.scale(waterTransform.matrix, [FAR_AWAY, 1, FAR_AWAY]);
 
+    mat4.translate(sky.matrix, [0, -200, 0]);
     mat4.scale(sky.matrix, [FAR_AWAY, FAR_AWAY, FAR_AWAY]);
 
     camera.far = FAR_AWAY*2;
@@ -156,7 +157,7 @@ function prepareScene(){
 
 loader.onready = function() {
     console.log('loaded');
-    glUtils.getContext(canvas, true);
+    glUtils.getContext(canvas, false);
     prepareScene();
     glUtils.fullscreen(canvas, sceneGraph);
     clock.start();
