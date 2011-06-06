@@ -14,6 +14,6 @@ void main(){
   float sunTheta = max(dot(direction, sunDirection), 0.0);
   vec3 sun = max(sunTheta-0.999, 0.0)*sunColor*10000.0;
   vec3 sunAtmosphere = max(sunColor-zenithColor, vec3(0.0))*max(sunTheta-0.995, 0.0)*10.0;
-  sunAtmosphere = sunAtmosphere*sunAtmosphere*50.0;
+  sunAtmosphere = sunAtmosphere*sunAtmosphere*50.0*vec3(2.0, 1.5, 0.4);
   gl_FragColor = vec4(skyColor+sun+sunAtmosphere, depth*(1.0-a));
 }

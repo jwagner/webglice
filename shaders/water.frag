@@ -46,7 +46,7 @@ void main(){
   float rp = (internalIOR * theta1 - externalIOR * theta2) / (internalIOR*theta1 + externalIOR * theta2);
   float reflectance = (rs*rs + rp*rp);*/
 
-  vec3 light = sunLight(surfaceNormal, eyeNormal, 10.0, 5.0, 1.0);
+  vec3 light = sunLight(surfaceNormal, eyeNormal, 50.0, 25.0, 1.0);
   vec3 finalColor = (reflectionSample*reflectance*0.8)+refractionColor*light;
   float alpha = clamp(waterDepth-1.0, 0.0, 1.0);
 

@@ -4,7 +4,6 @@ varying vec3 worldPosition;
 varying vec3 surfaceNormal;
 varying float depth;
 uniform float clip;
-uniform vec3 color;
 uniform vec3 eye;
 
 #include "hemisphere.glsl"
@@ -16,5 +15,5 @@ void main(){
   }
   vec3 eyeNormal = normalize(worldPosition - eye);
   vec3 color = lightHemisphere(surfaceNormal)+sunLight(surfaceNormal, eyeNormal, 5.0, 0.3, 1.0);
-  gl_FragColor = vec4(color*vec3(0.7, 0.8, 1.0), depth);
+  gl_FragColor = vec4(color*vec3(0.5, 0.8, 1.0), depth);
 }

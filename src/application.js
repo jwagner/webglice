@@ -6,7 +6,7 @@ var sceneGraph;
 
 var GRID_RESOLUTION = 512,
     GRID_SIZE = 512,
-    FAR_AWAY = 10000,
+    FAR_AWAY = 5000,
     scene = requires('scene'),
     mesh = requires('mesh'),
     Loader = requires('loader').Loader,
@@ -45,7 +45,7 @@ function prepareScene(){
         skyColor: new uniform.Vec3([0.1, 0.15, 0.45]),
         // looks sexy for some reason
         groundColor: new uniform.Vec3([-0.025, -0.05, -0.1]),
-        sunColor: new uniform.Vec3([0.7*2, 0.6*2, 0.75*2]),
+        sunColor: new uniform.Vec3([1.6, 1.47, 1.29]),
         sunDirection: new uniform.Vec3([0.577, 0.277, 0.077]),
         time: time,
         clip: 1000
@@ -93,8 +93,8 @@ function prepareScene(){
             ]);
         combinedFBO = new glUtils.FBO(2048, 1024, gl.FLOAT),
         combinedTarget = new scene.RenderTarget(combinedFBO, [mountain, water, sky]),
-        bloomFBO0 = new glUtils.FBO(512, 256),
-        bloomFBO1 = new glUtils.FBO(512, 256),
+        bloomFBO0 = new glUtils.FBO(512, 256, gl.FLOAT),
+        bloomFBO1 = new glUtils.FBO(512, 256, gl.FLOAT),
         brightpass = new scene.RenderTarget(bloomFBO0, [
             new scene.Postprocess(brightpassShader, {
                 texture: combinedFBO
@@ -113,7 +113,7 @@ function prepareScene(){
         bloom = new scene.Node([
             brightpass,
             hblurpass,
-            vblurpass
+            vblurpass,
         ]);
 
 
