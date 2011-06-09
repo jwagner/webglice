@@ -48,7 +48,7 @@ function prepareScene(){
         // looks sexy for some reason
         groundColor: new uniform.Vec3([0.025, 0.05, 0.1]),
         sunColor: new uniform.Vec3([1.6, 1.47, 1.29]),
-        sunDirection: new uniform.Vec3([0.0, 1.0, 20.0]),
+        sunDirection: new uniform.Vec3([0.0, 0.5, 1.0]),
         time: time,
         clip: 1000
     };
