@@ -4,7 +4,8 @@ provides('main');
 
 var sceneGraph;
 
-var GRID_RESOLUTION = 512,
+var Q = 0.5,
+    GRID_RESOLUTION = 512*Q,
     GRID_SIZE = 512,
     FAR_AWAY = 5000,
     scene = requires('scene'),
@@ -69,13 +70,13 @@ function prepareScene(){
         ]);
 
         // can be optimized with a z only shader
-    var mountainDepthFBO = new glUtils.FBO(1024, 512, gl.FLOAT),
+    var mountainDepthFBO = new glUtils.FBO(1024*Q, 512*Q, gl.FLOAT),
         mountainDepthTarget = new scene.RenderTarget(mountainDepthFBO, [
             new scene.Uniforms({clip: 0.5}, [
                 mountain
             ])
         ]),
-        reflectionFBO = new glUtils.FBO(1024, 512, gl.FLOAT),
+        reflectionFBO = new glUtils.FBO(1024*Q, 512*Q, gl.FLOAT),
         reflectionTarget = new scene.RenderTarget(reflectionFBO, [
             new scene.Uniforms({clip: 0.2}, [
                 flipTransform = new scene.Transform([mountain, sky])
@@ -91,10 +92,10 @@ function prepareScene(){
                     new scene.SimpleMesh(waterVBO)
                 ])
             ]);
-        combinedFBO = new glUtils.FBO(2048, 1024, gl.FLOAT),
+        combinedFBO = new glUtils.FBO(2048*Q, 1024*Q, gl.FLOAT),
         combinedTarget = new scene.RenderTarget(combinedFBO, [mountain, water, sky]),
-        bloomFBO0 = new glUtils.FBO(512, 256, gl.FLOAT),
-        bloomFBO1 = new glUtils.FBO(512, 256, gl.FLOAT),
+        bloomFBO0 = new glUtils.FBO(512*Q, 256*Q, gl.FLOAT),
+        bloomFBO1 = new glUtils.FBO(512*Q, 256*Q, gl.FLOAT),
         brightpass = new scene.RenderTarget(bloomFBO0, [
             new scene.Postprocess(brightpassShader, {
                 texture: combinedFBO
