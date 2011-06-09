@@ -29,7 +29,7 @@ void main(){
   vec3 refractionColor = mix(vec3(refractionSample), color,
     min(waterDepth/6.0*vec3(1.1, 1.0, 0.9), vec3(1.0)))*0.5;
 
-  vec3 eyeNormal = normalize(worldPosition-eye);
+  vec3 eyeNormal = normalize(eye-worldPosition);
   vec3 surfaceNormal = normalize(vec3(0, 1, 0)+vec3(noise.x, 0, noise.y)*0.5);
 
   float theta1 = abs(dot(eyeNormal, surfaceNormal));

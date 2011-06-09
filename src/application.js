@@ -4,7 +4,7 @@ provides('main');
 
 var sceneGraph;
 
-var Q = 0.5,
+var Q = 1.0,
     GRID_RESOLUTION = 512*Q,
     GRID_SIZE = 512,
     FAR_AWAY = 5000,
@@ -34,6 +34,7 @@ function prepareScene(){
         waterVBO = new glUtils.VBO(mesh.grid(100)),
         heightmapTexture = new glUtils.Texture2D(resources['gfx/heightmap.png']),
         normalnoiseTexture = new glUtils.Texture2D(resources['gfx/normalnoise.png']),
+        snowTexture = new glUtils.Texture2D(resources['gfx/snow.png']),
         mountainShader = shaderManager.get('heightmap.vertex', 'terrain.frag'),
         waterShader = shaderManager.get('water'),
         postShader = shaderManager.get('screen.vertex', 'tonemapping.frag'),
@@ -45,9 +46,9 @@ function prepareScene(){
     globalUniforms = {
         skyColor: new uniform.Vec3([0.1, 0.15, 0.45]),
         // looks sexy for some reason
-        groundColor: new uniform.Vec3([-0.025, -0.05, -0.1]),
+        groundColor: new uniform.Vec3([0.025, 0.05, 0.1]),
         sunColor: new uniform.Vec3([1.6, 1.47, 1.29]),
-        sunDirection: new uniform.Vec3([0.577, 0.277, 0.077]),
+        sunDirection: new uniform.Vec3([0.0, 1.0, 20.0]),
         time: time,
         clip: 1000
     };
@@ -56,7 +57,8 @@ function prepareScene(){
 
 
     var mountain = new scene.Material(mountainShader, {
-                heightmap: heightmapTexture
+                heightmap: heightmapTexture,
+                snowTexture: snowTexture
             }, [
             mountainTransform = new scene.Transform([
                 new scene.SimpleMesh(vbo)
@@ -114,7 +116,7 @@ function prepareScene(){
         bloom = new scene.Node([
             brightpass,
             hblurpass,
-            vblurpass,
+            vblurpass
         ]);
 
 
@@ -185,7 +187,8 @@ loader.load([
 
     'gfx/heightmap.png',
     'gfx/normalnoise.png',
-    'gfx/waternormal.jpg'
+    'gfx/waternormal.jpg',
+    'gfx/snow.png'
 ]);
 
 clock.ontick = function(td) {

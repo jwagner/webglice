@@ -6,13 +6,19 @@ attribute vec3 position;
 
 uniform sampler2D heightmap;
 varying vec3 surfaceNormal;
+varying mat3 tbn;
+varying vec2 uv;
 
 
 void main(){
   vec4 heightmapSample = texture2D(heightmap, vec2(position.x, position.z));
   //position.y = heightmapSample.a;
   vec3 positionHeight = vec3(position.x, heightmapSample.a, position.z);
-  surfaceNormal = normalize(vec3(heightmapSample.x-0.5, heightmapSample.z-0.5,
-heightmapSample.y-0.5));
+  surfaceNormal = normalize(vec3(heightmapSample.x, heightmapSample.z,
+heightmapSample.y)-vec3(0.5)*vec3(2.0));
+  uv = vec2(position.z, dot(position.xz, vec2(1.0, 0.0))*0.5+0.5)*vec2(50.0);
+  vec3 surfaceTangent = normalize(cross(surfaceNormal, vec3(0.0, 1.0, 0.0))); //vec3(0.0, 1.0, 0.0)));
+  vec3 surfaceBinormal = normalize(cross(surfaceNormal, surfaceTangent));
+  tbn = mat3(surfaceTangent, surfaceBinormal, surfaceNormal);
   transform(positionHeight);
 }
