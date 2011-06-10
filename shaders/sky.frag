@@ -9,7 +9,7 @@ uniform vec3 sunDirection;
 
 void main(){
   vec3 direction = normalize(worldPosition);
-  float a = abs(dot(direction, vec3(0, 1, 0)));
+  float a = max(0.0, dot(direction, vec3(0.0, 1.0, 0.0)));
   vec3 skyColor = mix(horizonColor, zenithColor, a);
   float sunTheta = max(dot(direction, sunDirection), 0.0);
   vec3 sun = max(sunTheta-0.999, 0.0)*sunColor*10000.0;

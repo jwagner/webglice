@@ -16,7 +16,7 @@ var Q = getHashValue('q', 0.5)*1,
     DEBUG = getHashValue('debug', false),
     GRID_RESOLUTION = 1024*Q*Q,
     GRID_SIZE = 512,
-    FAR_AWAY = 5000,
+    FAR_AWAY = 100000,
     scene = requires('scene'),
     mesh = requires('mesh'),
     Loader = requires('loader').Loader,
@@ -80,8 +80,8 @@ function prepareScene(){
         ]),
         sky = new scene.Transform([
             new scene.Skybox(skyShader, {
-                horizonColor: new uniform.Vec3([0.35, 0.7, 1.4]),
-                zenithColor: new uniform.Vec3([0.05, 0.2, 0.8])
+                horizonColor: new uniform.Vec3([0.25, 0.5, 1.2]),
+                zenithColor: new uniform.Vec3([0.025, 0.1, 0.5])
             })
         ]);
 
@@ -162,6 +162,7 @@ function prepareScene(){
     mat4.scale(sky.matrix, [FAR_AWAY, FAR_AWAY, FAR_AWAY]);
 
     camera.far = FAR_AWAY*2;
+    camera.near = 1.0;
 
     sceneGraph.root.append(camera);
     sceneGraph.root.append(bloom);
@@ -207,7 +208,7 @@ loader.load([
 ]);
 
 clock.ontick = function(td) {
-    time += 1/30;
+    time += td;
     globalUniforms.time = time;
     sceneGraph.draw();
     controller.tick(td);

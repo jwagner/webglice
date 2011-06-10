@@ -146,6 +146,8 @@ scene.Camera.prototype = extend({}, scene.Node.prototype, {
         graph.pushUniforms();
         mat4.multiply(projection, worldView, wvp);
         graph.uniforms.worldViewProjection = new uniform.Mat4(wvp);
+        graph.uniforms.worldView = new uniform.Mat4(worldView);
+        graph.uniforms.projection = new uniform.Mat4(projection);
         graph.uniforms.eye = new uniform.Vec3(this.position);
         //this.project([0, 0, 0, 1], scene);
     },
@@ -160,6 +162,9 @@ scene.Camera.prototype = extend({}, scene.Node.prototype, {
         graph.popUniforms();
     },
     getInverseRotation: function () {
+        return mat3.toMat4(mat4.toInverseMat3(this.getWorldView()));
+    },
+    getRotationOnly: function () {
         return mat3.toMat4(mat4.toInverseMat3(this.getWorldView()));
     },
     getProjection: function (graph) {
@@ -180,11 +185,11 @@ scene.Skybox = function SkyboxNode(shader, uniforms) {
     var mesh = new scene.SimpleMesh(new glUtils.VBO(new Float32Array([
             // back
             1, 1, 1,
+            1, -1, 1,
             -1, -1, 1,
-            -1, 1, 1,
             
             1, 1, 1,
-            1, -1, 1,
+            -1, -1, 1,
             -1, 1, 1,
 
             // front
@@ -192,10 +197,9 @@ scene.Skybox = function SkyboxNode(shader, uniforms) {
             -1, -1, -1,
             1, 1, -1,
             
-            -1, 1, -1,
-            1, -1, -1,
             1, 1, -1,
-
+            -1, -1, -1,
+            1, -1, -1,
             // left
             -1, 1, 1,
             -1, -1, -1,
@@ -203,16 +207,17 @@ scene.Skybox = function SkyboxNode(shader, uniforms) {
             
             -1, 1, 1,
             -1, -1, 1,
-            -1, 1, -1,
+            -1, -1, -1,
 
             // right
+
+            1, 1, 1,
             1, 1, -1,
             1, -1, -1,
-            1, 1, 1,
             
-            1, 1, -1,
-            1, -1, 1,
             1, 1, 1,
+            1, -1, -1,
+            1, -1, 1,
 
             // top
             1, 1, 1,
@@ -230,14 +235,26 @@ scene.Skybox = function SkyboxNode(shader, uniforms) {
 
             -1, -1, -1,
             1, -1, 1,
-            1, -1, -1
+            1, -1, -1,
 
 
         ]))),
         material = new scene.Material(shader, uniforms, [mesh]);
     this.children = [material];
 }
-scene.Skybox.prototype = scene.Node.prototype;
+scene.Skybox.prototype = extend({}, scene.Node.prototype, {
+    enter: function(graph){
+        graph.pushUniforms();
+        var worldViewProjection = mat4.create(),
+            worldView = mat3.toMat4(mat4.toMat3(graph.uniforms.worldView.value));
+        //mat4.identity(worldView);
+        mat4.multiply(graph.uniforms.projection.value, worldView, worldViewProjection);
+        graph.uniforms.worldViewProjection = new uniform.Mat4(worldViewProjection);
+    },
+    exit: function(graph){
+        graph.popUniforms();
+    },
+});;
 
 scene.Postprocess = function PostprocessNode(shader, uniforms) {
     var mesh = new scene.SimpleMesh(new glUtils.VBO(new Float32Array([
