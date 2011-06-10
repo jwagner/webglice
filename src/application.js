@@ -14,7 +14,7 @@ function getHashValue(name, default_){
 
 var Q = getHashValue('q', 0.5)*1,
     DEBUG = getHashValue('debug', false),
-    GRID_RESOLUTION = 1024*Q*Q,
+    GRID_RESOLUTION = 512*Q,
     GRID_SIZE = 512,
     FAR_AWAY = 100000,
     scene = requires('scene'),
@@ -148,9 +148,13 @@ function prepareScene(){
 
  //   mountainTransform.debug = true;
 
+    camera.position[0] = -100;
     camera.position[1] = 30;
+    camera.position[2] = -400;
+    camera.yaw = Math.PI-0.2;
+    camera.pitch = -0.15;
 
-   mat4.translate(mountainTransform.matrix, [-0.5*GRID_SIZE, -50, -0.5*GRID_SIZE]);
+    mat4.translate(mountainTransform.matrix, [-0.5*GRID_SIZE, -50, -0.5*GRID_SIZE]);
     mat4.scale(mountainTransform.matrix, [GRID_SIZE, 100, GRID_SIZE]);
 
     mat4.scale(flipTransform.matrix, [1, -1, 1]);
