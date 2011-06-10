@@ -6,12 +6,12 @@ cameracontroller.MouseController = function MouseController(input, camera) {
     this.camera = camera;
 }
 cameracontroller.MouseController.prototype = {
-    tick: function() {
+    tick: function(td) {
         if(this.input.mouse.down){
             var x = this.input.mouse.x - this.input.element.width*0.5,
                 y = this.input.mouse.y - this.input.element.height*0.5;
-            this.camera.yaw += 0.0001*x;
-            this.camera.pitch += 0.0001*y;
+            this.camera.yaw += 0.001*x*td;
+            this.camera.pitch += 0.001*y*td;
         }
 
         var inverseRotation = this.camera.getInverseRotation(),
@@ -29,7 +29,7 @@ cameracontroller.MouseController.prototype = {
         else if(this.input.keys.D){
             direction[0] = 1;
         }
-        vec3.scale(vec3.normalize(direction), 1.00);
+        vec3.scale(vec3.normalize(direction), td*60);
         mat4.multiplyVec3(inverseRotation, direction);
         vec3.add(this.camera.position, direction);
     }

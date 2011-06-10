@@ -5,13 +5,16 @@ attribute vec3 position;
 #include "transform.glsl"
 
 uniform sampler2D heightmap;
+uniform sampler2D occlusionmap;
 varying vec3 surfaceNormal;
 varying mat3 tbn;
 varying vec2 uv;
+varying float occlusion;
 
 
 void main(){
   vec4 heightmapSample = texture2D(heightmap, vec2(position.x, position.z));
+  occlusion =  max(texture2D(occlusionmap, vec2(position.x, position.z)).r, 0.2);
   //position.y = heightmapSample.a;
   vec3 positionHeight = vec3(position.x, heightmapSample.a, position.z);
   surfaceNormal = normalize((heightmapSample.rbg-0.5));

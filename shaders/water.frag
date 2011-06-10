@@ -14,8 +14,8 @@ uniform float time;
 
 void main(){
   vec2 uv = vec2(worldPosition.x, worldPosition.z);
-  vec4 noise = (texture2D(normalnoise, (uv+vec2(time*0.02, time*0.019))*0.07)) + 
-               (texture2D(normalnoise, (uv-vec2(time*0.021, -time*0.022))*0.05)) -1.0;
+  vec4 noise = (texture2D(normalnoise, (uv+vec2(time*0.43, time*0.39))*0.07)) + 
+               (texture2D(normalnoise, (uv-vec2(time*0.41, -time*0.42))*0.05)) -1.0;
   vec2 screenPosition = ((vec2(projected)/projected.w) + 1.0) * 0.5;
 
   vec2 reflectionUV = clamp(screenPosition+vec2(noise.x, noise.y*0.5)*0.05, vec2(0.01), vec2(0.99));

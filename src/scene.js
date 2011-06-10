@@ -66,6 +66,7 @@ scene.Graph.prototype = {
     draw: function() {
         gl.viewport(0, 0, this.viewportWidth, this.viewportHeight);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        //gl.clear(gl.DEPTH_BUFFER_BIT);
         //gl.enable(gl.DEPTH_TEST);
         this.root.visit(this);
     },
@@ -173,16 +174,18 @@ scene.Camera.prototype = extend({}, scene.Node.prototype, {
     }
 });
 
+
+
 scene.Skybox = function SkyboxNode(shader, uniforms) {
     var mesh = new scene.SimpleMesh(new glUtils.VBO(new Float32Array([
             // back
-            -1, 1, 1,
+            1, 1, 1,
             -1, -1, 1,
-            1, 1, 1,
-            
             -1, 1, 1,
-            1, -1, 1,
+            
             1, 1, 1,
+            1, -1, 1,
+            -1, 1, 1,
 
             // front
             -1, 1, -1,
@@ -194,13 +197,13 @@ scene.Skybox = function SkyboxNode(shader, uniforms) {
             1, 1, -1,
 
             // left
-            -1, 1, -1,
+            -1, 1, 1,
             -1, -1, -1,
-            -1, 1, 1,
-            
             -1, 1, -1,
-            -1, -1, 1,
+            
             -1, 1, 1,
+            -1, -1, 1,
+            -1, 1, -1,
 
             // right
             1, 1, -1,
@@ -212,13 +215,13 @@ scene.Skybox = function SkyboxNode(shader, uniforms) {
             1, 1, 1,
 
             // top
-            -1, 1, -1,
+            1, 1, 1,
             -1, 1, 1,
-            1, 1, 1,
-
             -1, 1, -1,
+
+            1, 1, -1,
             1, 1, 1,
-            1, 1, -1
+            -1, 1, -1,
 
             // bottom
             -1, -1, -1,
@@ -272,6 +275,21 @@ scene.Transform.prototype = extend({}, scene.Node, {
         graph.popUniforms();
     }
 });
+
+scene.Mirror = function MirrorNode(children){
+    scene.Transform.call(this, children);
+}
+scene.Mirror.prototype = extend({}, scene.Transform.prototype, {
+    enter: function (graph) {
+        gl.cullFace(gl.FRONT);
+        scene.Transform.prototype.enter.call(this, graph);
+    },
+    exit: function (graph) {
+        gl.cullFace(gl.BACK);
+        scene.Transform.prototype.exit.call(this, graph);
+    }
+});
+
 
 scene.SimpleMesh = function SimpleMesh(vbo){
     this.vbo = vbo;

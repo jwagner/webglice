@@ -4,8 +4,17 @@ provides('main');
 
 var sceneGraph;
 
-var Q = 1.0,
-    GRID_RESOLUTION = 512*Q,
+function getHashValue(name, default_){
+    var match = window.location.hash.match('[#,]+' + name + '(=([^,]*))?');
+    if(!match){
+        return default_;
+    }
+    return match.length == 3 && match[2] != null ? match[2] : true;
+}
+
+var Q = getHashValue('q', 0.5)*1,
+    DEBUG = getHashValue('debug', false),
+    GRID_RESOLUTION = 1024*Q*Q,
     GRID_SIZE = 512,
     FAR_AWAY = 5000,
     scene = requires('scene'),
@@ -27,12 +36,16 @@ var Q = 1.0,
     globalUniforms,
     controller;
 
+console.log('Q=' + Q);
+console.log('DEBUG=' + DEBUG);
+
 function prepareScene(){
     sceneGraph = new scene.Graph();
 
     var vbo = new glUtils.VBO(mesh.grid(GRID_RESOLUTION)),
         waterVBO = new glUtils.VBO(mesh.grid(100)),
         heightmapTexture = new glUtils.Texture2D(resources['gfx/heightmap.png']),
+        occlusionTexture = new glUtils.Texture2D(resources['gfx/occlusion.png']),
         normalnoiseTexture = new glUtils.Texture2D(resources['gfx/normalnoise.png']),
         snowTexture = new glUtils.Texture2D(resources['gfx/snow.png']),
         mountainShader = shaderManager.get('heightmap.vertex', 'terrain.frag'),
@@ -58,6 +71,7 @@ function prepareScene(){
 
     var mountain = new scene.Material(mountainShader, {
                 heightmap: heightmapTexture,
+                occlusionmap: occlusionTexture,
                 snowTexture: snowTexture
             }, [
             mountainTransform = new scene.Transform([
@@ -71,17 +85,16 @@ function prepareScene(){
             })
         ]);
 
-        // can be optimized with a z only shader
     var mountainDepthFBO = new glUtils.FBO(1024*Q, 512*Q, gl.FLOAT),
         mountainDepthTarget = new scene.RenderTarget(mountainDepthFBO, [
-            new scene.Uniforms({clip: 0.5}, [
+            new scene.Uniforms({clip: 2.0}, [
                 mountain
             ])
         ]),
         reflectionFBO = new glUtils.FBO(1024*Q, 512*Q, gl.FLOAT),
         reflectionTarget = new scene.RenderTarget(reflectionFBO, [
-            new scene.Uniforms({clip: 0.2}, [
-                flipTransform = new scene.Transform([mountain, sky])
+            new scene.Uniforms({clip: 0.3}, [
+                flipTransform = new scene.Mirror([mountain, sky])
             ])
         ]),
         water = new scene.Material(waterShader, {
@@ -93,11 +106,11 @@ function prepareScene(){
                 waterTransform = new scene.Transform([
                     new scene.SimpleMesh(waterVBO)
                 ])
-            ]);
+            ]),
         combinedFBO = new glUtils.FBO(2048*Q, 1024*Q, gl.FLOAT),
-        combinedTarget = new scene.RenderTarget(combinedFBO, [mountain, water, sky]),
-        bloomFBO0 = new glUtils.FBO(512*Q, 256*Q, gl.FLOAT),
-        bloomFBO1 = new glUtils.FBO(512*Q, 256*Q, gl.FLOAT),
+        combinedTarget = new scene.RenderTarget(combinedFBO, [water, mountain,  sky]),
+        bloomFBO0 = new glUtils.FBO(512, 256, gl.FLOAT),
+        bloomFBO1 = new glUtils.FBO(512, 256, gl.FLOAT),
         brightpass = new scene.RenderTarget(bloomFBO0, [
             new scene.Postprocess(brightpassShader, {
                 texture: combinedFBO
@@ -129,14 +142,15 @@ function prepareScene(){
         ]),
         postprocess = new scene.Postprocess(postShader, {
             texture: combinedFBO,
-            bloom: bloomFBO0
+            bloom: bloomFBO0,
+            exposure: 3.5
         });
 
  //   mountainTransform.debug = true;
 
     camera.position[1] = 30;
 
-    mat4.translate(mountainTransform.matrix, [-0.5*GRID_SIZE, -50, -0.5*GRID_SIZE]);
+   mat4.translate(mountainTransform.matrix, [-0.5*GRID_SIZE, -50, -0.5*GRID_SIZE]);
     mat4.scale(mountainTransform.matrix, [GRID_SIZE, 100, GRID_SIZE]);
 
     mat4.scale(flipTransform.matrix, [1, -1, 1]);
@@ -153,14 +167,14 @@ function prepareScene(){
     sceneGraph.root.append(bloom);
     sceneGraph.root.append(postprocess);
 
-    gl.clearColor(0.0, 0.0, 0.0, FAR_AWAY);
+    gl.clearColor(1.0, 1.0, 1.0, FAR_AWAY);
 
     controller = new MouseController(input, camera);
 }
 
 loader.onready = function() {
     console.log('loaded');
-    glUtils.getContext(canvas, false);
+    glUtils.getContext(canvas, DEBUG);
     prepareScene();
     glUtils.fullscreen(canvas, sceneGraph);
     clock.start();
@@ -186,16 +200,17 @@ loader.load([
     'shaders/sun.glsl',
 
     'gfx/heightmap.png',
+    'gfx/occlusion.png',
     'gfx/normalnoise.png',
     'gfx/waternormal.jpg',
     'gfx/snow.png'
 ]);
 
 clock.ontick = function(td) {
-    time += 1.0;
+    time += 1/30;
     globalUniforms.time = time;
     sceneGraph.draw();
-    controller.tick();
+    controller.tick(td);
 };
 
 });
