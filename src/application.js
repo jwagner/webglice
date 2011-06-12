@@ -33,6 +33,8 @@ var Q = getHashValue('q', 0.5)*1,
     resources = loader.resources,
     shaderManager = new ShaderManager(resources),
     time = 0,
+    targetExposure = 0.0,
+    rotation = false,
     globalUniforms,
     controller;
 
@@ -143,7 +145,7 @@ function prepareScene(){
         postprocess = new scene.Postprocess(postShader, {
             texture: combinedFBO,
             bloom: bloomFBO0,
-            exposure: 3.5
+            exposure: 0.0
         });
 
  //   mountainTransform.debug = true;
@@ -175,6 +177,48 @@ function prepareScene(){
     gl.clearColor(1.0, 1.0, 1.0, FAR_AWAY);
 
     controller = new MouseController(input, camera);
+
+    clock.ontick = function(td) {
+        time += td;
+        globalUniforms.time = time;
+        if(rotation){
+            camera.yaw -= 0.05*td;
+            camera.pitch = 0.2;
+            var a = camera.yaw + Math.PI*0.5,
+                distance = 250;
+            camera.position[0] = Math.cos(a)*distance;
+            camera.position[1] = 50;
+            camera.position[2] = Math.sin(a)*distance;
+        }
+
+        var exposure = postprocess.children[0].uniforms.exposure,
+            delta = targetExposure-exposure;
+        postprocess.children[0].uniforms.exposure += Math.min(0.5*td, delta);
+
+        sceneGraph.draw();
+        controller.tick(td);
+    };
+
+    input.onKeyUp = function(key) {
+        console.log(key);
+        if(key == '1'){
+            rotation = !rotation;
+            camera.yaw = Math.PI+0.5;
+        }
+        if(key == '2'){
+            //postprocess.children[0].uniforms.exposure = 0.25;
+            targetExposure = 0.5;
+        }
+        if(key == '3'){
+            //postprocess.children[0].uniforms.exposure = 3.5;
+            targetExposure = 3.5;
+        }
+        if(key == '0'){
+            targetExposure = 0.0;
+        }
+
+    }
+
 }
 
 loader.onready = function() {
@@ -211,11 +255,5 @@ loader.load([
     'gfx/snow.png'
 ]);
 
-clock.ontick = function(td) {
-    time += td;
-    globalUniforms.time = time;
-    sceneGraph.draw();
-    controller.tick(td);
-};
 
 });
