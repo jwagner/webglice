@@ -89,7 +89,23 @@ glUtils.FBO.prototype = $.extend({}, glUtils.Texture2D.prototype, {
 
 
 glUtils.getContext = function (canvas, debug) {
-    window.gl = canvas.getContext('experimental-webgl', {antialias: false, alpha: false});
+    window.gl = canvas.getContext('webgl', {antialias: false, alpha: false});
+    if(window.gl == null){
+        window.gl = canvas.getContext('experimental-webgl', {antialias: false, alpha: false});
+        if(window.gl == null){
+            glUtils.noWebgl();
+        }
+    }
+
+    if(gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS) < 2){
+        alert('This demo needs at least two vertex texture units. ' +
+              'try upgrading to the latest (beta/aurora) version of your browser.');
+    }
+
+    if(gl.getExtension('OES_texture_float') == null){
+        alert('This demo needs float textures for HDR rendering. ' +
+              'Try upgrading to the latest (beta/aurora) version of your browser.');
+    }
 
     if(window.WebGLDebugUtils && debug){
         window.gl = WebGLDebugUtils.makeDebugContext(gl);
@@ -100,7 +116,6 @@ glUtils.getContext = function (canvas, debug) {
     gl.enable(gl.CULL_FACE);
 
 
-    gl.getExtension('OES_texture_float');
 
     gl.lost = false;
     canvas.addEventListener('webglcontextlost', function () {
@@ -112,6 +127,22 @@ glUtils.getContext = function (canvas, debug) {
 
     return window.gl;
 };
+
+glUtils.noWebgl = function () {
+    alert('webgl not supported');
+    var domElement = document.createElement('div');
+    domElement.id = 'error';
+    domElement.innerHTML = window.WebGLRenderingContext ? [
+				'Sorry, your graphics card doesn\'t support <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">WebGL</a>'
+			].join( '\n' ) : [
+				'Sorry, your browser doesn\'t support <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">WebGL</a><br/>',
+				'Please try with',
+				'<a href="http://www.google.com/chrome">Chrome</a>, ',
+				'<a href="http://www.mozilla.com/en-US/firefox/new/">Firefox 4</a> or',
+				'<a href="http://nightly.webkit.org/">Webkit Nightly (Mac)</a>'
+			].join( '\n' );
+    document.body.appendChild(domElement);
+}
 
 glUtils.fullscreen = function (canvas, scene) {
     function onresize() {
