@@ -22,7 +22,7 @@ void main(){
   vec3 normal = normalize(normalize(sample.rgb-0.5)*tbn+surfaceNormal);
   //normal = surfaceNormal;
   vec3 eyeNormal = normalize(eye - worldPosition);
-  vec3 color = (lightHemisphere(normal))+sunLight(normal, eyeNormal, 15.0, 5.0 , 1.0);
+  vec3 color = (lightHemisphere(normal))+sunLight(normal, eyeNormal, 15.0, 2.5 , 1.0);
   //color = normalize(normal*vec3(0.5)+vec3(0.5));
   //color = vec3(normal);
   //color = vec3(dot(vec3(0.0, 0.1, 1.0), normal));

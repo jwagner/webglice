@@ -192,8 +192,15 @@ function prepareScene(){
         }
 
         var exposure = postprocess.children[0].uniforms.exposure,
-            delta = targetExposure-exposure;
-        postprocess.children[0].uniforms.exposure += Math.min(0.5*td, delta);
+            delta = targetExposure-exposure,
+            sign = delta/Math.abs(delta);
+
+        if(delta > 0) {
+            postprocess.children[0].uniforms.exposure += Math.min(0.5*td*sign, delta);
+        }
+        else if (delta < 0) {
+            postprocess.children[0].uniforms.exposure += Math.max(0.5*td*sign, delta);
+        }
 
         sceneGraph.draw();
         controller.tick(td);
@@ -203,11 +210,10 @@ function prepareScene(){
         console.log(key);
         if(key == '1'){
             rotation = !rotation;
-            camera.yaw = Math.PI+0.5;
         }
         if(key == '2'){
             //postprocess.children[0].uniforms.exposure = 0.25;
-            targetExposure = 0.5;
+            targetExposure = 0.1;
         }
         if(key == '3'){
             //postprocess.children[0].uniforms.exposure = 3.5;
