@@ -89,9 +89,9 @@ glUtils.FBO.prototype = $.extend({}, glUtils.Texture2D.prototype, {
 
 
 glUtils.getContext = function (canvas, debug) {
-    window.gl = canvas.getContext('webgl', {antialias: false, alpha: false});
+    window.gl = canvas.getContext('webgl');
     if(window.gl == null){
-        window.gl = canvas.getContext('experimental-webgl', {antialias: false, alpha: false});
+        window.gl = canvas.getContext('experimental-webgl');
         if(window.gl == null){
             glUtils.noWebgl();
         }
@@ -129,7 +129,7 @@ glUtils.getContext = function (canvas, debug) {
 };
 
 glUtils.noWebgl = function () {
-    alert('webgl not supported');
+    alert('webgl not supported - update your browser and graphics drivers to the most recent version');
     var domElement = document.createElement('div');
     domElement.id = 'error';
     domElement.innerHTML = window.WebGLRenderingContext ? [
