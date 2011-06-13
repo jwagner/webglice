@@ -90,7 +90,9 @@ function prepareScene(){
     var mountainDepthFBO = new glUtils.FBO(1024*Q, 512*Q, gl.FLOAT),
         mountainDepthTarget = new scene.RenderTarget(mountainDepthFBO, [
             new scene.Uniforms({clip: 2.0}, [
-                mountain
+                /* sky is needed because clearing on windows does not work
+                * properly, can be optimized by using a simpler shader */
+                mountain, sky
             ])
         ]),
         reflectionFBO = new glUtils.FBO(1024*Q, 512*Q, gl.FLOAT),
@@ -111,7 +113,7 @@ function prepareScene(){
             ]),
         combinedFBO = new glUtils.FBO(2048*Q, 1024*Q, gl.FLOAT),
         combinedTarget = new scene.RenderTarget(combinedFBO, [water, mountain,  sky]),
-        bloomFBO0 = new glUtils.FBO(512, 256, gl.FLOAT),
+        bloomFBO0 = new glUtils.FBO(512, 1024, gl.FLOAT),
         bloomFBO1 = new glUtils.FBO(512, 256, gl.FLOAT),
         brightpass = new scene.RenderTarget(bloomFBO0, [
             new scene.Postprocess(brightpassShader, {
