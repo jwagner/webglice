@@ -259,7 +259,6 @@ loader.load([
     'gfx/heightmap.png',
     'gfx/occlusion.png',
     'gfx/normalnoise.png',
-    'gfx/waternormal.jpg',
     'gfx/snow.png'
 ]);
 
