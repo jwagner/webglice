@@ -11,7 +11,8 @@
       "vec4",
       "console",
       "WebGLDebugUtils",
-      "clamp"
+      "clamp",
+      "alert"
     ],
     "browser" : true,
     "jquery" : true,

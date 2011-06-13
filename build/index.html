@@ -1,4 +1,111 @@
 <!DOCTYPE html>
-<canvas id=c width=1024 height=512 style="position: absolute; top: 0; left: 0;"></canvas>
-<script src="main.js"></script>
-<!--<script src=webgl.js></script>-->
+<html>
+  <head>
+    <title>WebGL Iceberg</title>
+    <link href='http://fonts.googleapis.com/css?family=Geo' rel='stylesheet' type='text/css'>
+    <style>
+      body {
+        font-size: 14px;
+      }
+      #screen {
+        position: absolute;
+        top: 104px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+      }
+
+      canvas {
+        height: 100%;
+        width: 100%;
+      }
+
+      #header {
+        font-family: geo;
+        font-size: 2em;
+        background-color: #111;
+        background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0.0, rgb(31,31,31)),
+        color-stop(1.0, rgb(7,7,7))
+        );
+        background-image: -moz-linear-gradient(
+        center bottom,
+        rgb(21,21,21) 0%,
+        rgb(17,17,17) 100%
+        );
+        height: 100px;
+        border: solid #444;
+        border-width: 2px 0px;
+        margin-bottom: 60px;
+        width: 100%;
+        overflow: hidden;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      #header div {
+        padding: 10px;
+        padding-top: 20px;
+        width: auto;
+        float: left;
+      }
+      #header ul {
+        padding: 10px;
+        margin: 0;
+        list-style-type: none;
+      }
+      #header ul li {
+        height: 82px;
+        overflow: hidden;
+        float: left;
+        margin-bottom: 10px;
+      }
+      #header a {
+        color: #84a4ff;
+        text-decoration: none;
+      }
+
+      a.twitter-share-button { display: block; width: 110px; height: 20px; visibility: hidden;}
+    </style>
+  </head>
+  <body>
+    <div id="header"> 
+      <div> 
+        <a href="http://29a.ch/">29a.ch</a> 
+      </div> 
+      <div> 
+        <a href="http://twitter.com/share" class="twitter-share-button"
+          data-url="http://29a.ch/space-break/"
+          data-text="#check out #spacebreak #HTML5 arcade #game"
+          data-count="horizontal" data-via="29a_ch">Tweet</a><br /> 
+        <iframe
+          src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2F29a.ch%2Fspace-break%2F&amp;layout=button_count&amp;show_faces=true&amp;width=450&amp;action=like&amp;font&amp;colorscheme=light&amp;height=21"
+          scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:90px;height:20px;" allowTransparency="true"></iframe> 
+      </div> 
+      <div><a href="http://29a.ch/2011/3/20/html5-game-space-break">How this works<br /> and source code</a></div> 
+      <div><a href="http://29a.ch/experiments/">More<br />Experiments</a></div> 
+      <ul class="imagelist"> 
+        <li><a href="http://29a.ch/jswars/"><img src="http://29a.ch/experiments/jswars.jpg"></a></li> 
+        <li><a href="http://29a.ch/2010/6/2/realtime-raytracing-in-javascript"><img src="http://29a.ch/experiments/rtrt.jpg"></a></li> 
+        <li><a href="http://29a.ch/2010/5/17/path-tracing-a-cornell-box-in-javascript"><img src="http://29a.ch/experiments/cornell.jpg"></a></li> 
+        <li><a href="http://29a.ch/2010/3/24/normal-mapping-with-javascript-and-canvas-tag"><img src="http://29a.ch/experiments/normals.jpg"></a></li> 
+        <li><a href="http://29a.ch/2010/10/23/html5-water-ripples-demo"><img src="http://29a.ch/experiments/water.jpg" alt="Water"></a></li> 
+        <li><a href="http://29a.ch/2010/8/18/javascript-galaxy-simulation"><img src="http://29a.ch/experiments/galaxy.png" alt="galaxy"></a></li> 
+        <li><a href="http://29a.ch/2010/4/17/box2d-2-flash-ported-javascript"><img src="http://29a.ch/experiments/physics.jpg"></a> 
+        </li><li><a href="http://29a.ch/2010/3/31/simulating-fire-using-javascript-and-canvas"><img src="http://29a.ch/experiments/fire.jpg"></a></li> 
+        <li><a href="http://29a.ch/2010/2/10/hand-drawn-lines-algorithm-javascript-canvas-html5"><img src="http://29a.ch/experiments/handdrawn.jpg"></a></li> 
+      </ul> 
+    </div> 
+  </div>
+  <div id="screen">
+    <canvas id=c></canvas>
+  </div>
+  <script src="main.js"></script>
+  <!--<script src=webgl.js></script>-->
+  <script src="http://platform.twitter.com/widgets.js" defer async></script>
+</body>
+</html>

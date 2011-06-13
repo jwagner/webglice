@@ -115,8 +115,6 @@ glUtils.getContext = function (canvas, debug) {
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
 
-
-
     gl.lost = false;
     canvas.addEventListener('webglcontextlost', function () {
         console.log('lost webgl context!');
@@ -146,8 +144,14 @@ glUtils.noWebgl = function () {
 
 glUtils.fullscreen = function (canvas, scene) {
     function onresize() {
-        canvas.width = scene.viewportWidth = window.innerWidth;
-        canvas.height = scene.viewportHeight = window.innerHeight;
+        var height = $(canvas).height(),
+            width = $(canvas).width();
+        if(canvas.width != width){
+            canvas.width = scene.viewportWidth = width;
+        }
+        if(canvas.height != height){
+            canvas.height = scene.viewportHeight = height;
+        }
         scene.draw();
     }
     window.addEventListener('resize', onresize, false);
