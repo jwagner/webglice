@@ -113,7 +113,7 @@ function prepareScene(){
             ]),
         combinedFBO = new glUtils.FBO(2048*Q, 1024*Q, gl.FLOAT),
         combinedTarget = new scene.RenderTarget(combinedFBO, [water, mountain,  sky]),
-        bloomFBO0 = new glUtils.FBO(512, 1024, gl.FLOAT),
+        bloomFBO0 = new glUtils.FBO(1024*Q, 512*Q, gl.FLOAT),
         bloomFBO1 = new glUtils.FBO(512, 256, gl.FLOAT),
         brightpass = new scene.RenderTarget(bloomFBO0, [
             new scene.Postprocess(brightpassShader, {
