@@ -89,7 +89,7 @@ glUtils.FBO.prototype = $.extend({}, glUtils.Texture2D.prototype, {
 
 
 glUtils.getContext = function (canvas, debug) {
-    window.gl = canvas.getContext('experimental-webgl');
+    window.gl = canvas.getContext('experimental-webgl', {antialias: false, alpha: false});
 
     if(window.WebGLDebugUtils && debug){
         window.gl = WebGLDebugUtils.makeDebugContext(gl);
