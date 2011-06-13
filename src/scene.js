@@ -235,7 +235,7 @@ scene.Skybox = function SkyboxNode(shader, uniforms) {
 
             -1, -1, -1,
             1, -1, 1,
-            1, -1, -1,
+            1, -1, -1
 
 
         ]))),
@@ -253,8 +253,8 @@ scene.Skybox.prototype = extend({}, scene.Node.prototype, {
     },
     exit: function(graph){
         graph.popUniforms();
-    },
-});;
+    }
+});
 
 scene.Postprocess = function PostprocessNode(shader, uniforms) {
     var mesh = new scene.SimpleMesh(new glUtils.VBO(new Float32Array([
