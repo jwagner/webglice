@@ -94,17 +94,28 @@ glUtils.getContext = function (canvas, debug) {
         window.gl = canvas.getContext('experimental-webgl');
         if(window.gl == null){
             glUtils.noWebgl();
+            $('#youtube').show('slow');
+            $(canvas).hide();
+            $('#controls').hide();
         }
     }
 
     if(gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS) < 2){
         alert('This demo needs at least two vertex texture units. ' +
               'try upgrading to the latest (beta/aurora) version of your browser.');
+        $('#youtube').show('slow');
+        $(canvas).hide();
+        $('#controls').hide();
+        return;
     }
 
     if(gl.getExtension('OES_texture_float') == null){
         alert('This demo needs float textures for HDR rendering. ' +
               'Try upgrading to the latest (beta/aurora) version of your browser.');
+        $('#youtube').show('slow');
+        $(canvas).hide();
+        $('#controls').hide();
+        return;
     }
 
     if(window.WebGLDebugUtils && debug){
