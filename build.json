@@ -3,13 +3,14 @@
     "src": "./src",
     "build": "./build",
     "srcurl": "../src/",
-    "globals": ["core", "jQuery", "glMatrix", "webgl-debug"],
+    "globals": ["core", "jQuery", "glMatrix", "webgl-debug", "html5slider"],
     "entrypoints": {
         "main": "browser"
     },
     "provides": {
         "jQuery": "./lib/jquery.js",
         "glMatrix": "./lib/glMatrix.js",
+        "html5slider": "./lib/html5slider.js",
         "webgl-debug": "./lib/webgl-debug.js"
     }
 }

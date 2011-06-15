@@ -1,3 +1,5 @@
+var targetExposure = 3.5,
+    rotation = true;
 jQuery(function(){
 
 provides('main');
@@ -33,8 +35,6 @@ var Q = getHashValue('q', 0.5)*1,
     resources = loader.resources,
     shaderManager = new ShaderManager(resources),
     time = 0,
-    targetExposure = 0.0,
-    rotation = false,
     globalUniforms,
     controller;
 
@@ -194,14 +194,13 @@ function prepareScene(){
         }
 
         var exposure = postprocess.children[0].uniforms.exposure,
-            delta = targetExposure-exposure,
-            sign = delta/Math.abs(delta);
+            delta = targetExposure-exposure;
 
         if(delta > 0) {
-            postprocess.children[0].uniforms.exposure += Math.min(0.5*td*sign, delta);
+            postprocess.children[0].uniforms.exposure += Math.min(0.5*td*(exposure+0.1), delta);
         }
         else if (delta < 0) {
-            postprocess.children[0].uniforms.exposure += Math.max(0.5*td*sign, delta);
+            postprocess.children[0].uniforms.exposure += Math.max(-0.5*td*(exposure+0.1), delta);
         }
 
         sceneGraph.draw();

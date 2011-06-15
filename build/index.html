@@ -69,6 +69,40 @@
         text-decoration: none;
       }
 
+      #controls {
+        font-family: geo;
+         position: absolute;
+        top: 120px;
+        left: 0;
+       z-index: 2;
+       color: #eee;
+       padding: 8px;
+       font-size: 1.5em;
+        background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0.0, rgba(31,31,31, 0.5)),
+        color-stop(1.0, rgba(7,7,7, 0.5))
+        );
+        background-image: -moz-linear-gradient(
+        center bottom,
+        rgba(21,21,21, 0.5) 0%,
+        rgba(17,17,17, 0.5) 100%
+        );
+
+      }
+      #controls a {
+       color: #eee;
+       padding-right: 16px;
+      }
+      label {
+       vertical-align: middle;
+     }
+     input {
+       height: 24px;
+     }
+
       a.twitter-share-button { display: block; width: 110px; height: 20px; visibility: hidden;}
     </style>
   </head>
@@ -79,14 +113,16 @@
       </div> 
       <div> 
         <a href="http://twitter.com/share" class="twitter-share-button"
-          data-url="http://29a.ch/space-break/"
-          data-text="#check out #spacebreak #HTML5 arcade #game"
+          data-url="http://29a.ch/sandbox/2011/webglice/"
+          data-text="WebGL Iceberg demo by Jonas Wagner"
           data-count="horizontal" data-via="29a_ch">Tweet</a><br /> 
         <iframe
-          src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2F29a.ch%2Fspace-break%2F&amp;layout=button_count&amp;show_faces=true&amp;width=450&amp;action=like&amp;font&amp;colorscheme=light&amp;height=21"
+          src="http://www.facebook.com/plugins/like.php?href=http%3A%2F%2F29a.ch%2Fsandbox%2F2011%2Fwebglice%2F&amp;layout=button_count&amp;show_faces=true&amp;width=450&amp;action=like&amp;font&amp;colorscheme=light&amp;height=21"
           scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:90px;height:20px;" allowTransparency="true"></iframe> 
       </div> 
-      <div><a href="http://29a.ch/2011/3/20/html5-game-space-break">How this works<br /> and source code</a></div> 
+      <div><a href="http://29a.ch/2011/3/20/html5-game-space-break">Source
+          code</br>
+      on github</a></div> 
       <div><a href="http://29a.ch/experiments/">More<br />Experiments</a></div> 
       <ul class="imagelist"> 
         <li><a href="http://29a.ch/jswars/"><img src="http://29a.ch/experiments/jswars.jpg"></a></li> 
@@ -100,6 +136,16 @@
         <li><a href="http://29a.ch/2010/2/10/hand-drawn-lines-algorithm-javascript-canvas-html5"><img src="http://29a.ch/experiments/handdrawn.jpg"></a></li> 
       </ul> 
     </div> 
+  </div>
+  <div id="controls">
+    <form id="controlForm">
+      <a href="?1#q=1.0">High Quality</a>
+      <a href="?2#q=0.5">Medium Quality</a>
+      <a href="?3#q=0.25">Ugly Quality</a>
+      <label>Exposure <input id=exposure type=range min=0 max=10 value=3.5
+        step=0.01 onchange="targetExposure=this.value"></label>
+      <label>Rotation <input type=checkbox checked onchange="rotation=this.checked"></label>
+    </form>
   </div>
   <div id="screen">
     <canvas id=c></canvas>
