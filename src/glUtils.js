@@ -89,32 +89,37 @@ glUtils.FBO.prototype = $.extend({}, glUtils.Texture2D.prototype, {
 
 
 glUtils.getContext = function (canvas, debug) {
+    if(!canvas.getContext){
+        glUtils.onerror(canvas, 'canvas is not supported by your browser. ' +
+             'Try upgrading to chrome 12 or firefox 6 (aurora).', 'no-canvas');
+        return;
+    }
     window.gl = canvas.getContext('webgl');
     if(window.gl == null){
         window.gl = canvas.getContext('experimental-webgl');
         if(window.gl == null){
-            glUtils.noWebgl();
-            $('#youtube').show('slow');
-            $(canvas).hide();
-            $('#controls').hide();
+            if(window.WebGLRenderingContext){
+                glUtils.onerror(canvas, 'webgl is supported by your browser but not by your graphics card or driver. ' +
+                                'please upgrade your graphics driver to the most recent version.', 'no-webgl-driver');
+                return;
+            }
+            else {
+                glUtils.onerror(canvas, 'webgl is not supported by your browser. ' +
+                     'Try upgrading to chrome 12 or firefox 6 (aurora).', 'no-webgl');
+                return;
+            }
         }
     }
 
     if(gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS) < 2){
-        alert('This demo needs at least two vertex texture units. ' +
-              'try upgrading to the latest (beta/aurora) version of your browser.');
-        $('#youtube').show('slow');
-        $(canvas).hide();
-        $('#controls').hide();
+        glUtils.onerror(canvas, 'This demo needs at least two vertex texture units which are not supported by your browser. ' +
+              'Try upgrading to chrome 12 or firefox 6 (aurora).', 'no-vertext-texture-units');
         return;
     }
 
     if(gl.getExtension('OES_texture_float') == null){
-        alert('This demo needs float textures for HDR rendering. ' +
-              'Try upgrading to the latest (beta/aurora) version of your browser.');
-        $('#youtube').show('slow');
-        $(canvas).hide();
-        $('#controls').hide();
+        glUtils.onerror(canvas, 'This demo needs float textures for HDR rendering which is not supported by your browser. ' +
+              'Try upgrading to chrome 12 or firefox 6 (aurora).', 'no-OES_texture_float');
         return;
     }
 
@@ -128,30 +133,15 @@ glUtils.getContext = function (canvas, debug) {
 
     gl.lost = false;
     canvas.addEventListener('webglcontextlost', function () {
-        console.log('lost webgl context!');
+        alert('lost webgl context');
     }, false);
     canvas.addEventListener('webglcontextrestored', function () {
-        console.log('restored webgl context!');
+        alert('restored webgl context - reloading!');
+        window.location.reload();
     }, false);
 
     return window.gl;
 };
-
-glUtils.noWebgl = function () {
-    alert('webgl not supported - update your browser and graphics drivers to the most recent version');
-    var domElement = document.createElement('div');
-    domElement.id = 'error';
-    domElement.innerHTML = window.WebGLRenderingContext ? [
-				'Sorry, your graphics card doesn\'t support <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">WebGL</a>'
-			].join( '\n' ) : [
-				'Sorry, your browser doesn\'t support <a href="http://khronos.org/webgl/wiki/Getting_a_WebGL_Implementation">WebGL</a><br/>',
-				'Please try with',
-				'<a href="http://www.google.com/chrome">Chrome</a>, ',
-				'<a href="http://www.mozilla.com/en-US/firefox/new/">Firefox 4</a> or',
-				'<a href="http://nightly.webkit.org/">Webkit Nightly (Mac)</a>'
-			].join( '\n' );
-    document.body.appendChild(domElement);
-}
 
 glUtils.fullscreen = function (canvas, scene) {
     function onresize() {
@@ -168,5 +158,14 @@ glUtils.fullscreen = function (canvas, scene) {
     window.addEventListener('resize', onresize, false);
     onresize();
 };
+
+glUtils.onerror = function(canvas, reason, code) {
+    window._gaq = window._gaq || [];
+    window._gaq.push(['_trackEvent', 'webgl-error', code]);
+    alert(reason);
+    $('#youtube').show('slow');
+    $(canvas).hide();
+    $('#controls').hide();
+}
 
 })();

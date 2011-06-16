@@ -1,5 +1,5 @@
 var targetExposure = 3.5,
-    rotation = true;
+    rotation = false;
 jQuery(function(){
 
 provides('main');
@@ -224,17 +224,19 @@ function prepareScene(){
             targetExposure = 0.0;
         }
 
-    }
-
+    };
 }
 
 loader.onready = function() {
     console.log('loaded');
     glUtils.getContext(canvas, DEBUG);
-    prepareScene();
-    glUtils.fullscreen(canvas, sceneGraph);
-    clock.start();
-}
+    if(window.gl){
+        prepareScene();
+        glUtils.fullscreen(canvas, sceneGraph);
+        clock.start();
+    }
+};
+
 loader.load([
     'shaders/transform.vertex',
     'shaders/heightmap.vertex',
