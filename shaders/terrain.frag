@@ -28,5 +28,7 @@ void main(){
   //color = vec3(normal);
   //color = vec3(dot(vec3(0.0, 0.1, 1.0), normal));
   //color = vec3(occlusion);
+  float depth = length(worldPosition-eye);
   gl_FragColor = vec4(color*occlusion*vec3(0.7, 0.9, 1.0)+scatter, depth);
+  /*gl_FragColor = vec4(vec3(depth), depth);*/
 }
