@@ -23,9 +23,10 @@ void main(){
   //normal = surfaceNormal;
   vec3 eyeNormal = normalize(eye - worldPosition);
   vec3 color = (lightHemisphere(normal))+sunLight(normal, eyeNormal, 15.0, 2.5 , 1.0);
+  vec3 scatter = vec3(0.0, 0.03, 0.1)*(1.0-occlusion)*(1.0-occlusion);
   //color = normalize(normal*vec3(0.5)+vec3(0.5));
   //color = vec3(normal);
   //color = vec3(dot(vec3(0.0, 0.1, 1.0), normal));
   //color = vec3(occlusion);
-  gl_FragColor = vec4(color*occlusion*vec3(0.7, 0.9, 1.0), depth);
+  gl_FragColor = vec4(color*occlusion*vec3(0.7, 0.9, 1.0)+scatter, depth);
 }
