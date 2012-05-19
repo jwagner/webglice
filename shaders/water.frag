@@ -52,7 +52,7 @@ void main(){
   vec3 diffuseColor = max(dot(sunDirection, surfaceNormal),0.0)*sunColor*0.5;
   vec3 reflectionDirection = normalize(reflect(-sunDirection, surfaceNormal));
   float reflecttionDot = max(0.0, dot(eyeNormal, reflectionDirection));
-  vec3 specularColor = pow(reflecttionDot, 100.0)*sunColor*15.0;
+  vec3 specularColor = pow(reflecttionDot, 128.0)*sunColor*50.0;
   vec3 finalColor = mix(refractionColor*diffuseColor, reflectionSample*(diffuseColor+specularColor), reflectance);
 
   //gl_FragColor = vec4(worldPosition+vec3(noise), 1.0);
