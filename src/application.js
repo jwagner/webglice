@@ -231,6 +231,7 @@ loader.onready = function() {
     console.log('loaded');
     glUtils.getContext(canvas, DEBUG);
     if(window.gl){
+        gl.getExtension('OES_texture_float_linear');
         prepareScene();
         glUtils.fullscreen(canvas, sceneGraph);
         clock.start();
